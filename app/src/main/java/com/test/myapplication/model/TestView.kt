@@ -5,19 +5,23 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
-import android.view.ViewGroup
 
 class TestView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
-    val data = listOf(DataModel(listOf( //
-        Vertices("Monitoramento", "235", { it }, { it.toInt() }),
-        Vertices("Horas", "500", { it }, { it.toInt() }),
-        Vertices("Cambio", "290", { it }, { it.toInt() }),
-        Vertices("Aviação", "100", { it }, { it.toInt() }))), DataModel(listOf( //
-        Vertices("Monitoramento", "135", { it }, { it.toInt() }),
-        Vertices("Horas", "200", { it }, { it.toInt() }),
-        Vertices("Cambio", "590", { it }, { it.toInt() }),
-        Vertices("Aviação", "200", { it }, { it.toInt() }))))
+    val data = listOf(
+        DataModel(listOf(
+            Vertices("Monitoramento", "235", { it }, { it.toInt() }),
+            Vertices("Horas", "500", { it }, { it.toInt() }),
+            Vertices("Cambio", "290", { it }, { it.toInt() }),
+            Vertices("Aviação", "100", { it }, { it.toInt() }))
+        ),
+        DataModel(listOf(
+            Vertices("Monitoramento", "135", { it }, { it.toInt() }),
+            Vertices("Horas", "200", { it }, { it.toInt() }),
+            Vertices("Cambio", "590", { it }, { it.toInt() }),
+            Vertices("Aviação", "200", { it }, { it.toInt() }))
+        )
+    )
 
     private var hasError = false
     private var center = PointF()
@@ -101,13 +105,7 @@ class TestView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        //        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        val minHeight =
-            if (layoutParams.height == ViewGroup.LayoutParams.WRAP_CONTENT) 400 else layoutParams.height
-
-        setMeasuredDimension(
-            getDefaultSize(suggestedMinimumWidth, widthMeasureSpec),
-            getDefaultSize(minHeight, heightMeasureSpec))
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
 
         runCalculations()
     }
@@ -205,13 +203,14 @@ class TestView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
     private fun runCalculations() {
         Log.d("maicon", "---runCalculations---")
-        minGraphSize = calculateMinimumSize()
-        center.x =measuredWidth.center().toFloat()
-        center.y =measuredHeight.center().toFloat()
+        minGraphSize = calcMaxSquareSize()
+        center.x = measuredWidth.center().toFloat()
+        center.y = measuredHeight.center().toFloat()
         hasError = false
         ovalList = calculateOvalList()
         paintLineAxis.apply { strokeWidth = calculatMinAxisStrokeWidth().toFloat() }
         paintTitleText.apply { textSize = calculateTextTitleSizes() }
+        setMeasuredDimension(minGraphSize, minGraphSize)
     }
 
     private fun calculateTextTitleSizes() = min(minGraphSize.percent(5).toDouble(), 35.0).toFloat()
@@ -231,17 +230,17 @@ class TestView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     }
 
     private fun min(number: Number, number2: Number) =
-        Math.min(number.toDouble(), number2.toDouble())
+        number.toDouble().coerceAtMost(number2.toDouble())
 
     private fun calculateAxisSize() = minGraphSize.center().minusPercent(axisMarginPercent)
 
-    private fun calculateMinimumSize() = Math.min(measuredHeight, measuredWidth)
+    private fun calcMaxSquareSize() = measuredHeight.coerceAtMost(measuredWidth)
 
     private fun polarToX(theta: Number, r: Number) = r.toDouble() * Math.cos(theta.toDouble())
     private fun polarToY(theta: Number, r: Number) = r.toDouble() * Math.sin(theta.toDouble())
     private fun degreesToRadians(angleInDegrees: Int) = Math.PI * angleInDegrees / 180.0
 
-    fun max(number1: Number, number2: Number) = Math.max(number1.toDouble(), number2.toDouble())
+    fun max(number1: Number, number2: Number) = number1.toDouble().coerceAtLeast(number2.toDouble())
 }
 
 private operator fun Number.minus(number: Number): Number = this.toDouble() - number.toDouble()
@@ -316,7 +315,8 @@ class Vertices<T>(
     val type: String,
     val value: T,
     private val asString: (T) -> String,
-    private val asNumber: (T) -> Number) {
+    private val asNumber: (T) -> Number
+) {
     override fun toString() = asString.invoke(value)
     fun asNumber() = asNumber.invoke(value)
 }
