@@ -5,12 +5,12 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
-import com.epolly.radargraph.model.Mock
+import com.epolly.radargraph.model.DummyData
 
 class RadarGraphView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
     //Data model containing the data used to populate the graph(user input)
-    val dataModel = Mock.createDataList()
+    val dataModel = DummyData.createDataList()
 
     // Center of the graph(minGraphSize / 2)
     private var center = PointF()

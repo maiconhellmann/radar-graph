@@ -12,7 +12,7 @@ import VertexType
  * 
  * (c) 2020 
  */
-class Mock {
+class DummyData {
     companion object {
         fun createDataList(): DataList<String> {
 
