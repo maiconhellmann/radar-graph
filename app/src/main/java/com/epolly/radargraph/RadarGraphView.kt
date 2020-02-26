@@ -33,7 +33,7 @@ class RadarGraphView(context: Context, attrs: AttributeSet?) : View(context, att
     // Percentage of the minGraphSize to define the stroke of the axis lines TODO accept it as a parameter
     private val axisLineStrokePercent = .3f
 
-    // Percentage of the margin between the axis and the outer view
+    // Percentage of the margin between each circle
     private val axisMarginPercent = 15f
 
     // Path used to draw the lines between axis
@@ -42,7 +42,7 @@ class RadarGraphView(context: Context, attrs: AttributeSet?) : View(context, att
     private val pathDataList = dataModel.dataList.map { mutableListOf<PointF>() }
 
     init {
-        // create a path for each vertice TODO what does it really do?
+        // create a path for each vertex TODO what does it really do?
         dataModel.dataList.forEachIndexed { i, dataModel ->
             dataModel.vertexList.forEachIndexed { index, _ ->
                 pathDataList[i].add(index, PointF(0f, 0f))
@@ -121,34 +121,39 @@ class RadarGraphView(context: Context, attrs: AttributeSet?) : View(context, att
         Log.d("RadarGraphView", "onDraw")
         pCanvas?.apply {
 
-            val verticesTypes =
+            // Get all vertexTypes distinctly
+            val vertexTypes =
                 dataModel.dataList.flatMap { dataModel -> dataModel.vertexList.map { it.type } }.distinct()
-            val angle = 360 / verticesTypes.size
+
+            // divide the circle by the numbers of vertex
+            val angle = 360 / vertexTypes.size
+
             val radius = calculateAxisSize()
             val ovalRadius = minGraphSize.percent(ovalSizePercent)
 
+            // drawn background circles
             backgroundOvalList.forEach {
                 drawCircle(center.x, center.y, it, paintOval)
             }
 
-            verticesTypes.forEachIndexed { verticeTypeIndex, type ->
-                val theta = degreesToRadians(angle * verticeTypeIndex)
+            vertexTypes.forEachIndexed { vertexTypeIndex, type ->
+                val theta = degreesToRadians(angle * vertexTypeIndex)
 
-                val xEndVertices = polarToX(theta, radius) + center.x
-                val yEndVertices = polarToY(theta, radius) + center.y
+                val xEndVertex = polarToX(theta, radius) + center.x
+                val yEndVertex = polarToY(theta, radius) + center.y
 
                 drawCircle(
-                    xEndVertices, yEndVertices, ovalRadius, paintCircleAxis)
-                drawLine(center.x, center.y, xEndVertices, yEndVertices, paintLineAxis)
+                    xEndVertex, yEndVertex, ovalRadius, paintCircleAxis)
+                drawLine(center.x, center.y, xEndVertex, yEndVertex, paintLineAxis)
 
-                //draw titles
-                var xTitle = xEndVertices - paintTitleText.rectOfText(type.label).centerX()
+                // region draw titles
+                var xTitle = xEndVertex - paintTitleText.rectOfText(type.label).centerX()
                 val titleRectSize = paintTitleText.rectOfText(type.label)
                 val yTitle = when {
-                    20 + yEndVertices > center.y -> yEndVertices + titleRectSize.height() + 20
-                    else -> yEndVertices - titleRectSize.height()
+                    20 + yEndVertex > center.y -> yEndVertex + titleRectSize.height() + 20
+                    else -> yEndVertex - titleRectSize.height()
                 }
-                //avoid draw out of screen
+                // avoid drawing out of screen
                 if (xTitle + titleRectSize.width() >= measuredWidth) {
                     xTitle = measuredWidth - titleRectSize.width() - 20.0
                 }
@@ -156,24 +161,23 @@ class RadarGraphView(context: Context, attrs: AttributeSet?) : View(context, att
                     xTitle = 10.0
                 }
                 drawText(type.label, xTitle, yTitle, paintTitleText)
-                //fim Draw titles
+                // end region Draw titles
 
-                //**Draw paths
-                //array bidimensional: [dataModel][typeList] exemplo: [2018]["monitoramento":100, ...]
+                // Draw paths between each value of a list of vertex
                 dataModel.dataList.forEachIndexed { i, data ->
-                    val verticesIndex = data.vertexList.indexOfFirst { it.type == type }
+                    val vertexIndex = data.vertexList.indexOfFirst { it.type == type }
 
-                    if (verticeTypeIndex != -1) {
-                        val vertices = data.vertexList[verticesIndex]
-                        val verticesPoint = pathDataList[i][verticesIndex]
+                    if (vertexTypeIndex != -1) {
+                        val vertexList = data.vertexList[vertexIndex]
+                        val vertexPoint = pathDataList[i][vertexIndex]
 
-                        val value = vertices.asNumber()
-                        val percent = value.getPercentFrom(getMaxVerticeValue())
+                        val value = vertexList.asNumber()
+                        val percent = value.getPercentFrom(getMaxVertexValue())
                         val drawableRadius = radius.minusPercent(20f)
                         val valueRadius = drawableRadius - drawableRadius.minusPercent(percent)
 
-                        verticesPoint.x = polarToX(theta, valueRadius).toFloat() + center.x
-                        verticesPoint.y = polarToY(theta, valueRadius).toFloat() + center.y
+                        vertexPoint.x = polarToX(theta, valueRadius).toFloat() + center.x
+                        vertexPoint.y = polarToY(theta, valueRadius).toFloat() + center.y
                     }
                 }
             }
@@ -194,10 +198,10 @@ class RadarGraphView(context: Context, attrs: AttributeSet?) : View(context, att
         }
     }
 
-    private fun getMaxVerticeValue(): Number {
+    private fun getMaxVertexValue(): Number {
         var max = 0.0
-        dataModel.dataList.forEach { vertices ->
-            val currentMax = vertices.vertexList.maxBy { item -> item.asNumber().toDouble() }
+        dataModel.dataList.forEach { vertexList ->
+            val currentMax = vertexList.vertexList.maxBy { item -> item.asNumber().toDouble() }
             currentMax?.let {
                 max = if (it.asNumber().toDouble() > max) it.asNumber().toDouble() else max
             }
