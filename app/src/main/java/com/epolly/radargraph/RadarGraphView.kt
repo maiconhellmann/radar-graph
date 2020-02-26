@@ -94,14 +94,26 @@ class RadarGraphView(context: Context, attrs: AttributeSet?) : View(context, att
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        Log.d("RadarGraphView", "widthMeasureSpec")
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
 
         runCalculations()
     }
+    
+    private fun runCalculations() {
+        Log.d("RadarGraphView", "-runCalculations")
+        minGraphSize = calcMaxSquareSize()
+        center.x = measuredWidth.center().toFloat()
+        center.y = measuredHeight.center().toFloat()
+        hasError = false
+        ovalList = calculateOvalList()
+        paintLineAxis.apply { strokeWidth = calculateMinAxisStrokeWidth().toFloat() }
+        paintTitleText.apply { textSize = calculateTextTitleSizes() }
+    }
 
     override fun onDraw(pCanvas: Canvas?) {
         super.onDraw(pCanvas)
-        Log.d("maicon", "onDraw")
+        Log.d("RadarGraphView", "onDraw")
         pCanvas?.apply {
             //background
             drawRect(0, 0, measuredWidth, measuredHeight, paintBackground)
@@ -188,18 +200,6 @@ class RadarGraphView(context: Context, attrs: AttributeSet?) : View(context, att
             }
         }
         return max
-    }
-
-    private fun runCalculations() {
-        Log.d("maicon", "---runCalculations---")
-        minGraphSize = calcMaxSquareSize()
-        center.x = measuredWidth.center().toFloat()
-        center.y = measuredHeight.center().toFloat()
-        hasError = false
-        ovalList = calculateOvalList()
-        paintLineAxis.apply { strokeWidth = calculateMinAxisStrokeWidth().toFloat() }
-        paintTitleText.apply { textSize = calculateTextTitleSizes() }
-        setMeasuredDimension(minGraphSize, minGraphSize)
     }
 
     private fun calculateTextTitleSizes() = min(minGraphSize.percent(5).toDouble(), 35.0).toFloat()

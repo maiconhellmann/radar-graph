@@ -19,7 +19,8 @@ class Mock {
             val typeList = listOf(
                 VertexType(1, "Type one"), //
                 VertexType(2, "Type two"), //
-                VertexType(3, "Type three"))
+                VertexType(3, "Type three"), //
+                VertexType(4, "Type four")) //
 
             return DataList(
                 listOf(
@@ -28,7 +29,8 @@ class Mock {
                         1, "First", mutableListOf( //
                             Vertex(typeList[0], "100"), //
                             Vertex(typeList[1], "200"), //
-                            Vertex(typeList[2], "300")) //
+                            Vertex(typeList[2], "300"), //
+                            Vertex(typeList[3], "320")) //
                     ),
                     // second
                     Data(
