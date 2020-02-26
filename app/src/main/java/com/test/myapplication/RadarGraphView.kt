@@ -1,27 +1,15 @@
-package com.test.myapplication.model
+package com.test.myapplication
 
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
+import com.test.myapplication.model.Mock
 
 class TestView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
-    val data = listOf(
-        DataModel(listOf(
-            Vertices("Monitoramento", "235", { it }, { it.toInt() }),
-            Vertices("Horas", "500", { it }, { it.toInt() }),
-            Vertices("Cambio", "290", { it }, { it.toInt() }),
-            Vertices("Aviação", "100", { it }, { it.toInt() }))
-        ),
-        DataModel(listOf(
-            Vertices("Monitoramento", "135", { it }, { it.toInt() }),
-            Vertices("Horas", "200", { it }, { it.toInt() }),
-            Vertices("Cambio", "590", { it }, { it.toInt() }),
-            Vertices("Aviação", "200", { it }, { it.toInt() }))
-        )
-    )
+    val data = Mock.createDataList()
 
     private var hasError = false
     private var center = PointF()
@@ -35,11 +23,12 @@ class TestView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
     val path = Path()
 
-    private val pathDataList = data.map { mutableListOf<PointF>() }
+    private val pathDataList = data.dataList.map { mutableListOf<PointF>() }
 
     init {
-        data.forEachIndexed { i, dataModel ->
-            dataModel.vertices.forEachIndexed { index, _ ->
+        // create a path for each vertice TODO what does it really do?
+        data.dataList.forEachIndexed { i, dataModel ->
+            dataModel.vertexList.forEachIndexed { index, _ ->
                 pathDataList[i].add(index, PointF(0f, 0f))
             }
         }
@@ -118,7 +107,7 @@ class TestView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
             drawRect(0, 0, measuredWidth, measuredHeight, paintBackground)
 
             val verticesTypes =
-                data.flatMap { dataModel -> dataModel.vertices.map { it.type } }.distinct()
+                data.dataList.flatMap { dataModel -> dataModel.vertexList.map { it.type } }.distinct()
             val angle = 360 / verticesTypes.size
             val radius = calculateAxisSize()
             val ovalRadius = minGraphSize.percent(ovalSizePercent)
@@ -127,7 +116,7 @@ class TestView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
                 drawCircle(center.x, center.y, it, paintOval)
             }
 
-            verticesTypes.forEachIndexed { verticeTypeIndex, title ->
+            verticesTypes.forEachIndexed { verticeTypeIndex, type ->
                 val theta = degreesToRadians(angle * verticeTypeIndex)
 
                 val xEndVertices = polarToX(theta, radius) + center.x
@@ -138,8 +127,8 @@ class TestView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
                 drawLine(center.x, center.y, xEndVertices, yEndVertices, paintLineAxis)
 
                 //draw titles
-                var xTitle = xEndVertices - paintTitleText.rectOfText(title).centerX()
-                val titleRectSize = paintTitleText.rectOfText(title)
+                var xTitle = xEndVertices - paintTitleText.rectOfText(type.label).centerX()
+                val titleRectSize = paintTitleText.rectOfText(type.label)
                 val yTitle = when {
                     20 + yEndVertices > center.y -> yEndVertices + titleRectSize.height() + 20
                     else -> yEndVertices - titleRectSize.height()
@@ -151,16 +140,16 @@ class TestView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
                 if (xTitle <= 0) {
                     xTitle = 10.0
                 }
-                drawText(title, xTitle, yTitle, paintTitleText)
+                drawText(type.label, xTitle, yTitle, paintTitleText)
                 //fim Draw titles
 
                 //**Draw paths
                 //array bidimensional: [data][typeList] exemplo: [2018]["monitoramento":100, ...]
-                data.forEachIndexed { i, data ->
-                    val verticesIndex = data.vertices.indexOfFirst { it.type == title }
+                data.dataList.forEachIndexed { i, data ->
+                    val verticesIndex = data.vertexList.indexOfFirst { it.type == type }
 
                     if (verticeTypeIndex != -1) {
-                        val vertices = data.vertices[verticesIndex]
+                        val vertices = data.vertexList[verticesIndex]
                         val verticesPoint = pathDataList[i][verticesIndex]
 
                         val value = vertices.asNumber()
@@ -192,8 +181,8 @@ class TestView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
     private fun getMaxVerticeValue(): Number {
         var max = 0.0
-        data.forEach { vertices ->
-            val currentMax = vertices.vertices.maxBy { item -> item.asNumber().toDouble() }
+        data.dataList.forEach { vertices ->
+            val currentMax = vertices.vertexList.maxBy { item -> item.asNumber().toDouble() }
             currentMax?.let {
                 max = if (it.asNumber().toDouble() > max) it.asNumber().toDouble() else max
             }
@@ -208,14 +197,14 @@ class TestView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         center.y = measuredHeight.center().toFloat()
         hasError = false
         ovalList = calculateOvalList()
-        paintLineAxis.apply { strokeWidth = calculatMinAxisStrokeWidth().toFloat() }
+        paintLineAxis.apply { strokeWidth = calculateMinAxisStrokeWidth().toFloat() }
         paintTitleText.apply { textSize = calculateTextTitleSizes() }
         setMeasuredDimension(minGraphSize, minGraphSize)
     }
 
     private fun calculateTextTitleSizes() = min(minGraphSize.percent(5).toDouble(), 35.0).toFloat()
 
-    private fun calculatMinAxisStrokeWidth() = max(minGraphSize.percent(axisLineStrokePercent), 2)
+    private fun calculateMinAxisStrokeWidth() = max(minGraphSize.percent(axisLineStrokePercent), 2)
 
     private fun calculateOvalList(): List<Float> {
         val circlesPadding = minGraphSize.center().percent(circleMarginPercent)
@@ -304,19 +293,3 @@ fun PointF.set(x: Number, y: Number) {
 }
 
 fun Number.center(): Number = this.toDouble() / 2
-/**
- * ********************* DATA ******************
- */
-
-//test
-class DataModel<T>(val vertices: List<Vertices<T>>)
-
-class Vertices<T>(
-    val type: String,
-    val value: T,
-    private val asString: (T) -> String,
-    private val asNumber: (T) -> Number
-) {
-    override fun toString() = asString.invoke(value)
-    fun asNumber() = asNumber.invoke(value)
-}

@@ -1,87 +1,82 @@
-package com.test.myapplication.model
+/**
+ * Wraps a list of Data(list of vertex).
+ * Each element of the list is a different graph. The last one will be drawn on top of the others.
+ * There is no limitation, it can contain 0 .. N elements.
+ * If a vertex doesn't have a value for a specific and distict VertexType this wrapper will add a null value for it.
+ */
+class DataList<T>(
+    dataList: List<Data<T>>,
+    private val asString: ((Vertex<T>) -> String)? = null,
+    private val asNumber: ((Vertex<T>) -> Number)? = null
+) {
+    private val typeList: MutableSet<VertexType> = mutableSetOf()
+    val dataList: List<Data<T>>
 
-import android.graphics.Color
-import android.util.Log
-import java.util.*
+    init {
+        typeList.addAll(dataList.flatMap { it.vertexList.map { dataValue -> dataValue.type } })
 
-class Data<T>(val dispersionList: List<Dispersion<T>>, val ovalsAmount: Int) {
-    fun validate(): Boolean {
-        val tag = Data::class.java.simpleName
-        return if (ovalsAmount == 0) {
-            Log.e(tag, "$tag ovalsAmount can't be 0")
-            false
-        } else if (ovalsAmount > 10) {
-            Log.e(tag, "$tag ovalsAmount can't more than 10")
-            false
-        } else dispersionList.find { it.valueList.validate().not() } == null
+        // Validate
+        dataList.forEach { data ->
+            typeList.forEach { dataType ->
+                // Add a default value if there is no vertex for all the types used
+                data.vertexList.firstOrNull { it.type == dataType } ?: data.vertexList.add(
+                    Vertex(
+                        dataType,
+                        null))
+
+                data.vertexList.forEach {
+                    it.asNumber = asNumber
+                    it.asString = asString
+                }
+            }
+        }
+
+        this.dataList = dataList
+    }
+
+    override fun toString(): String {
+        return dataList.toString()
     }
 }
 
-class Dispersion<T>(val title: String, val color: Int, val valueList: List<Value<T>>)
+/**
+ * Wraps a list of vertex values
+ */
+class Data<T>(
+    val id: Int, val name: String = "", //TODO emptyString()
+    val vertexList: MutableList<Vertex<T>>
+) {
 
-class Value<T>(val type: Type, val value: T)
-
-class Type(val title: String, val textColor: Int, val position: Position)
-
-class Mock() {
-    companion object {
-        fun dispersionList() = Data(
-            listOf(dispersion(), dispersion()), Mock.random(3,3))
-
-        fun dispersion() = Dispersion("dispersion title", Color.GRAY, valueList())
-
-        fun valueList() = typeList().map { Value(it, Mock.random(0, 350)) }
-
-        fun typeList() = listOf(
-            Type("Monitoramento", Color.RED, Position.TOP),
-            Type("Consumo", Color.BLUE, Position.LEFT),
-            Type("Comercial", Color.GREEN, Position.RIGHT),
-            Type("Não Comercial", Color.BLACK, Position.BOT))
-
-        fun random(min: Int, max: Int): Int {
-            val r = Random()
-            return r.nextInt(max - min + 1) + min
-        }
+    override fun toString(): String {
+        return "$id - $name - $vertexList"
     }
 }
 
-enum class Position {
-    TOP, RIGHT, BOT, LEFT
-}
+/**
+ * Represents each value of a vertex. If the value is null it will be considered the minimum possible value(zero)
+ */
+class Vertex<T>(
+    val type: VertexType,
+    val value: T? = null,
+    var asString: ((Vertex<T>) -> String)? = null,
+    var asNumber: ((Vertex<T>) -> Number)? = null
+) {
+    override fun toString(): String {
+        if (asString == null && value == null) return ""
 
-fun List<Value<*>>.validate(): Boolean {
-    val tag = Value::class.java.simpleName
-    return when {
-        this.isEmpty() -> {
-            val msg = "$tag list is empty"
-            Log.e(tag, msg)
-            return false
-        }
-        this.size != 4 -> {
-            val msg = "$tag list doesn't contain all positions(TOP,LEFT,RIGHT and BOT)"
-            Log.e(tag, msg)
-            return false
-        }
-        this.firstOrNull { it.type.position == Position.BOT } == null -> {
-            val msg = "$tag doesn't contain BOT position"
-            Log.e(tag, msg)
-            return false
-        }
-        this.firstOrNull { it.type.position == Position.LEFT } == null -> {
-            val msg = "$tag doesn't contain LEFT position"
-            Log.e(tag, msg)
-            return false
-        }
-        this.firstOrNull { it.type.position == Position.RIGHT } == null -> {
-            val msg = "$tag doesn't contain RIGHT position"
-            Log.e(tag, msg)
-            return false
-        }
-        this.firstOrNull { it.type.position == Position.TOP } == null -> {
-            Log.e(
-                tag, "$tag doesn't contain TOP position")
-            return false
-        }
-        else -> true
+        return asString?.invoke(this) ?: value.toString()
+    }
+
+    fun asNumber(): Number {
+        if (asNumber == null && value == null) return 0
+
+        return asNumber?.invoke(this) ?: value.toString().toInt()
     }
 }
+
+/**
+ * Type of the data. The label is shown on each vertex
+ */
+data class VertexType(
+    val id: Int, val label: String
+)
