@@ -43,7 +43,7 @@ class DataList<T>(
  * Wraps a list of vertex values
  */
 class Data<T>(
-    val id: Int, val name: String = "", //TODO emptyString()
+    val id: Int, val name: String = "",
     val vertexList: MutableList<Vertex<T>>
 ) {
 

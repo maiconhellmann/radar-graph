@@ -36,7 +36,7 @@ class Mock {
                     Data(
                         1, "Second", mutableListOf( //
                             Vertex(typeList[0], "150"), //
-                            Vertex(typeList[1], "180"))))) //
+                            Vertex(typeList[1], "220"))))) //
         }
     }
 }
