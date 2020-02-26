@@ -9,31 +9,48 @@ import com.epolly.radargraph.model.Mock
 
 class RadarGraphView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
-    val data = Mock.createDataList()
+    //Data model containing the data used to populate the graph(user input)
+    val dataModel = Mock.createDataList()
 
-    private var hasError = false
+    // Center of the graph(minGraphSize / 2)
     private var center = PointF()
-    private var ovalList: List<Float> = emptyList()
+
+    // List of background circles
+    private var backgroundOvalList: List<Float> = emptyList()
+
+    // It is a square defined by the minimum values between measuredWith and measuredHeight
     private var minGraphSize: Int = 0
-    private val ovalsAmount = 3
+
+    // Amount of background circles TODO accept it as a parameter
+    private val backgroundOvalAmount = 3
+
+    // Margin between the background circles and the outer view TODO accept it as a parameter
     private val circleMarginPercent = 30f
+
+    // Percentage of minGraphSize to define the size of the background circles TODO accept it as a parameter
     private val ovalSizePercent = 1f
+
+    // Percentage of the minGraphSize to define the stroke of the axis lines TODO accept it as a parameter
     private val axisLineStrokePercent = .3f
+
+    // Percentage of the margin between the axis and the outer view
     private val axisMarginPercent = 15f
 
+    // Path used to draw the lines between axis
     val path = Path()
 
-    private val pathDataList = data.dataList.map { mutableListOf<PointF>() }
+    private val pathDataList = dataModel.dataList.map { mutableListOf<PointF>() }
 
     init {
         // create a path for each vertice TODO what does it really do?
-        data.dataList.forEachIndexed { i, dataModel ->
+        dataModel.dataList.forEachIndexed { i, dataModel ->
             dataModel.vertexList.forEachIndexed { index, _ ->
                 pathDataList[i].add(index, PointF(0f, 0f))
             }
         }
     }
 
+    // TODO make it dinamic
     private val paintOval = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.argb(50, 50, 50, 255)
         style = Paint.Style.STROKE
@@ -41,6 +58,7 @@ class RadarGraphView(context: Context, attrs: AttributeSet?) : View(context, att
         isAntiAlias = true
     }
 
+    // TODO make it dinamic
     private val paintTitleText = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.GRAY
         style = Paint.Style.STROKE
@@ -48,6 +66,7 @@ class RadarGraphView(context: Context, attrs: AttributeSet?) : View(context, att
         textSize = 32f
     }
 
+    // TODO make it dinamic
     private val paintValueDiamond1 = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.argb(150, 50, 200, 200)
         style = Paint.Style.FILL_AND_STROKE
@@ -56,6 +75,7 @@ class RadarGraphView(context: Context, attrs: AttributeSet?) : View(context, att
         isDither = true
     }
 
+    // TODO make it dinamic
     private val paintValueDiamond2 = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.argb(150, 50, 255, 50)
         style = Paint.Style.FILL_AND_STROKE
@@ -64,33 +84,19 @@ class RadarGraphView(context: Context, attrs: AttributeSet?) : View(context, att
         isDither = true
     }
 
+    // TODO make it dinamic
     private val paintLineAxis = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.rgb(180, 220, 180)
         style = Paint.Style.STROKE
         strokeWidth = 3f
         isAntiAlias = true
     }
+
+    // TODO make it dinamic
     private val paintCircleAxis = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.rgb(180, 220, 180)
         style = Paint.Style.FILL
         isAntiAlias = true
-    }
-
-    private val paintTextValue1 = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.argb(150, 50, 200, 200)
-        style = Paint.Style.STROKE
-        isAntiAlias = true
-        textSize = 24f
-    }
-    private val paintTextValue2 = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.argb(150, 50, 255, 50)
-        style = Paint.Style.STROKE
-        isAntiAlias = true
-        textSize = 24f
-    }
-
-    private val paintBackground = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.WHITE
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -105,8 +111,7 @@ class RadarGraphView(context: Context, attrs: AttributeSet?) : View(context, att
         minGraphSize = calcMaxSquareSize()
         center.x = measuredWidth.center().toFloat()
         center.y = measuredHeight.center().toFloat()
-        hasError = false
-        ovalList = calculateOvalList()
+        backgroundOvalList = calculateOvalList()
         paintLineAxis.apply { strokeWidth = calculateMinAxisStrokeWidth().toFloat() }
         paintTitleText.apply { textSize = calculateTextTitleSizes() }
     }
@@ -115,16 +120,14 @@ class RadarGraphView(context: Context, attrs: AttributeSet?) : View(context, att
         super.onDraw(pCanvas)
         Log.d("RadarGraphView", "onDraw")
         pCanvas?.apply {
-            //background
-            drawRect(0, 0, measuredWidth, measuredHeight, paintBackground)
 
             val verticesTypes =
-                data.dataList.flatMap { dataModel -> dataModel.vertexList.map { it.type } }.distinct()
+                dataModel.dataList.flatMap { dataModel -> dataModel.vertexList.map { it.type } }.distinct()
             val angle = 360 / verticesTypes.size
             val radius = calculateAxisSize()
             val ovalRadius = minGraphSize.percent(ovalSizePercent)
 
-            ovalList.forEach {
+            backgroundOvalList.forEach {
                 drawCircle(center.x, center.y, it, paintOval)
             }
 
@@ -156,8 +159,8 @@ class RadarGraphView(context: Context, attrs: AttributeSet?) : View(context, att
                 //fim Draw titles
 
                 //**Draw paths
-                //array bidimensional: [data][typeList] exemplo: [2018]["monitoramento":100, ...]
-                data.dataList.forEachIndexed { i, data ->
+                //array bidimensional: [dataModel][typeList] exemplo: [2018]["monitoramento":100, ...]
+                dataModel.dataList.forEachIndexed { i, data ->
                     val verticesIndex = data.vertexList.indexOfFirst { it.type == type }
 
                     if (verticeTypeIndex != -1) {
@@ -193,7 +196,7 @@ class RadarGraphView(context: Context, attrs: AttributeSet?) : View(context, att
 
     private fun getMaxVerticeValue(): Number {
         var max = 0.0
-        data.dataList.forEach { vertices ->
+        dataModel.dataList.forEach { vertices ->
             val currentMax = vertices.vertexList.maxBy { item -> item.asNumber().toDouble() }
             currentMax?.let {
                 max = if (it.asNumber().toDouble() > max) it.asNumber().toDouble() else max
@@ -211,8 +214,8 @@ class RadarGraphView(context: Context, attrs: AttributeSet?) : View(context, att
         val maxSize = minGraphSize.center().toFloat() - circlesPadding.toFloat()
 
         val list = mutableListOf<Float>()
-        for (i in 1..ovalsAmount) {
-            val size = maxSize / ovalsAmount * i
+        for (i in 1..backgroundOvalAmount) {
+            val size = maxSize / backgroundOvalAmount * i
             list.add(size)
         }
         return list.toList()

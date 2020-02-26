@@ -75,7 +75,7 @@ class Vertex<T>(
 }
 
 /**
- * Type of the data. The label is shown on each vertex
+ * Type of the dataModel. The label is shown on each vertex
  */
 data class VertexType(
     val id: Int, val label: String
