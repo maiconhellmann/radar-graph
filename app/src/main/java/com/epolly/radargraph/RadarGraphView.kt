@@ -1,5 +1,6 @@
 package com.epolly.radargraph
 
+import DataList
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
@@ -10,7 +11,8 @@ import com.epolly.radargraph.model.DummyData
 class RadarGraphView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
     //Data model containing the data used to populate the graph(user input)
-    val dataModel = DummyData.createDataList()
+    var dataModel = DataList<String>(emptyList())
+    //var dataModel = DummyData.createDataList()
 
     // Center of the graph(minGraphSize / 2)
     private var center = PointF()
@@ -120,6 +122,14 @@ class RadarGraphView(context: Context, attrs: AttributeSet?) : View(context, att
         super.onDraw(pCanvas)
         Log.d("RadarGraphView", "onDraw")
         pCanvas?.apply {
+
+            // If the list of data is empty
+            if (dataModel.dataList.isEmpty()) {
+                val text = "No data found" // TODO should be dynamic
+                val rect = paintTitleText.rectOfText(text) // TODO paint should be dynamic
+                drawText(text, center.x - rect.centerX(), center.y - rect.centerY(), paintTitleText)
+                return
+            }
 
             // Get all vertexTypes distinctly
             val vertexTypes =
