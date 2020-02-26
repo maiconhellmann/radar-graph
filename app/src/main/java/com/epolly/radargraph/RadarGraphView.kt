@@ -11,8 +11,8 @@ import com.epolly.radargraph.model.DummyData
 class RadarGraphView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
     //Data model containing the data used to populate the graph(user input)
-    var dataModel = DataList<String>(emptyList())
-    //var dataModel = DummyData.createDataList()
+    //var dataModel = DataList<String>(emptyList())
+    var dataModel = DummyData.createDataList()
 
     // Center of the graph(minGraphSize / 2)
     private var center = PointF()
