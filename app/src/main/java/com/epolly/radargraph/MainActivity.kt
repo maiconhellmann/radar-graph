@@ -1,4 +1,4 @@
-package com.test.myapplication
+package com.epolly.radargraph
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity

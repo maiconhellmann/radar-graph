@@ -1,13 +1,13 @@
-package com.test.myapplication
+package com.epolly.radargraph
 
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
-import com.test.myapplication.model.Mock
+import com.epolly.radargraph.model.Mock
 
-class TestView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
+class RadarGraphView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
     val data = Mock.createDataList()
 

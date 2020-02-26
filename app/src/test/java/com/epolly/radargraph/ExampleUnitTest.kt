@@ -1,4 +1,4 @@
-package com.test.myapplication
+package com.epolly.radargraph
 
 import org.junit.Test
 

@@ -1,4 +1,4 @@
-package com.test.myapplication.model
+package com.epolly.radargraph.model
 
 import Data
 import DataList
