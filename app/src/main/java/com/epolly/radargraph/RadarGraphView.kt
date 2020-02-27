@@ -1,14 +1,46 @@
 package com.epolly.radargraph
 
-import DataList
+import android.annotation.TargetApi
 import android.content.Context
 import android.graphics.*
+import android.os.Build.VERSION_CODES.LOLLIPOP
+import android.support.annotation.ColorRes
+import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
 import com.epolly.radargraph.model.DummyData
 
-class RadarGraphView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
+class RadarGraphView: View {
+
+    @JvmOverloads
+    constructor(
+        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+    ) : super(context, attrs, defStyleAttr) {
+        init(attrs)
+    }
+
+    @TargetApi(LOLLIPOP)
+    constructor(
+        context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int
+    ) : super(
+        context, attrs, defStyleAttr, defStyleRes) {
+        init(attrs)
+    }
+
+    fun init(attrs: AttributeSet?) {
+        attrs?.let {
+            val typedArray = context.obtainStyledAttributes(it,
+                R.styleable.RadarGraphView, 0, 0)
+
+            val circleColor = typedArray.getColor(
+                R.styleable.RadarGraphView_circleColor, context.parseColor(R.color.defaultOval))
+
+            initPaintOval(circleColor)
+
+            typedArray.recycle()
+        }
+    }
 
     //Data model containing the data used to populate the graph(user input)
     //var dataModel = DataList<String>(emptyList())
@@ -52,12 +84,15 @@ class RadarGraphView(context: Context, attrs: AttributeSet?) : View(context, att
         }
     }
 
-    // TODO make it dinamic
-    private val paintOval = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.argb(50, 50, 50, 255)
-        style = Paint.Style.STROKE
-        strokeWidth = 4f
-        isAntiAlias = true
+    private lateinit var paintOval: Paint
+
+    private fun initPaintOval(paintColor: Int) {
+        paintOval = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = paintColor
+            style = Paint.Style.STROKE
+            strokeWidth = 4f
+            isAntiAlias = true
+        }
     }
 
     // TODO make it dinamic
@@ -310,3 +345,5 @@ fun PointF.set(x: Number, y: Number) {
 }
 
 fun Number.center(): Number = this.toDouble() / 2
+
+fun Context.parseColor(@ColorRes color: Int) = ContextCompat.getColor(this, color)
