@@ -2,10 +2,10 @@
 This graph is not completely ready to use.
 
 TODO list:  
-* Convert all dynamic fields to view arguments
-* Default color pallet for at least 5 axis(axis color, text color, axis circle color)
+* Default color pallet for at least 5 axis
 * Display the data model label name
 * Display the data model legends
+* Display graph name if set
 * Separate the component from the demo app
 * Release it as a library
 
