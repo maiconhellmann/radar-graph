@@ -1,6 +1,5 @@
 package com.epolly.radargraph
 
-import DataList
 import android.annotation.TargetApi
 import android.content.Context
 import android.graphics.*
@@ -30,8 +29,8 @@ class RadarGraphView: View {
     }
 
     //Data model containing the data used to populate the graph(user input)
-    var dataModel = DataList<String>(emptyList())
-    //var dataModel = DummyData.createDataList()
+    //var dataModel = DataList<String>(emptyList())
+    var dataModel = DummyData.createDataList()
 
     // Center of the graph(minGraphSize / 2)
     private var center = PointF()
@@ -62,6 +61,10 @@ class RadarGraphView: View {
 
     private lateinit var noDataFoundText: CharSequence
 
+    private lateinit var paintAxisTitleText: Paint
+
+    private lateinit var paintLineAxis: Paint
+
     private fun initPaintCircles(paintColor: Int) {
         paintCircles = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = paintColor
@@ -71,15 +74,17 @@ class RadarGraphView: View {
         }
     }
 
-    // TODO make it dinamic
-    private val paintTitleText = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.GRAY
-        style = Paint.Style.STROKE
-        isAntiAlias = true
-        textSize = 32f
+    private fun initPaintAxisTitleText(paintColor: Int) {
+        paintAxisTitleText = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = paintColor
+            style = Paint.Style.STROKE
+            isAntiAlias = true
+            textSize = 32f
+        }
     }
 
-    // TODO make it dinamic
+
+    // TODO make it dynamic via dataModel
     private val paintValueDiamond1 = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.argb(150, 50, 200, 200)
         style = Paint.Style.FILL_AND_STROKE
@@ -88,7 +93,7 @@ class RadarGraphView: View {
         isDither = true
     }
 
-    // TODO make it dinamic
+    // TODO make it dynamic via dataModel
     private val paintValueDiamond2 = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.argb(150, 50, 255, 50)
         style = Paint.Style.FILL_AND_STROKE
@@ -97,16 +102,17 @@ class RadarGraphView: View {
         isDither = true
     }
 
-    // TODO make it dinamic
-    private val paintLineAxis = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.rgb(180, 220, 180)
-        style = Paint.Style.STROKE
-        strokeWidth = 3f
-        isAntiAlias = true
+    private fun initPaintLineAxis(paintColor: Int) {
+        paintLineAxis = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = paintColor
+            style = Paint.Style.STROKE
+            strokeWidth = 3f
+            isAntiAlias = true
+        }
     }
 
-    // TODO make it dinamic
-    private val paintCircleAxis = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    // TODO make it dynamic
+    private val paintVertexCircle = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.rgb(180, 220, 180)
         style = Paint.Style.FILL
         isAntiAlias = true
@@ -145,8 +151,17 @@ class RadarGraphView: View {
             axisLineStrokePercent = typedArray.getFloat(R.styleable.RadarGraphView_axisLineStrokePercent, axisLineStrokePercent)
 
             // Text displayed when there is no data
-
             noDataFoundText = typedArray.getText(R.styleable.RadarGraphView_noDataFoundText)
+
+            // Color of the axis title
+            initPaintAxisTitleText(
+                typedArray.getColor(R.styleable.RadarGraphView_axisTitleTextColor, context.parseColor(R.color.grey))
+            )
+
+            // Color of the axis
+            initPaintLineAxis(
+                typedArray.getColor(R.styleable.RadarGraphView_axisLineColor, context.parseColor(R.color.defaultLineAxis))
+            )
 
             typedArray.recycle()
         }
@@ -166,7 +181,7 @@ class RadarGraphView: View {
         center.y = measuredHeight.center().toFloat()
         backgroundOvalList = calculateOvalList()
         paintLineAxis.apply { strokeWidth = calculateMinAxisStrokeWidth().toFloat() }
-        paintTitleText.apply { textSize = calculateTextTitleSizes() }
+        paintAxisTitleText.apply { textSize = calculateTextTitleSizes() }
     }
 
     override fun onDraw(pCanvas: Canvas?) {
@@ -176,8 +191,8 @@ class RadarGraphView: View {
 
             // If the list of data is empty
             if (dataModel.dataList.isEmpty()) {
-                val rect = paintTitleText.rectOfText(noDataFoundText)
-                drawText(noDataFoundText.toString(), center.x - rect.centerX(), center.y - rect.centerY(), paintTitleText)
+                val rect = paintAxisTitleText.rectOfText(noDataFoundText)
+                drawText(noDataFoundText.toString(), center.x - rect.centerX(), center.y - rect.centerY(), paintAxisTitleText)
                 return
             }
 
@@ -203,12 +218,12 @@ class RadarGraphView: View {
                 val yEndVertex = polarToY(theta, radius) + center.y
 
                 drawCircle(
-                    xEndVertex, yEndVertex, ovalRadius, paintCircleAxis)
+                    xEndVertex, yEndVertex, ovalRadius, paintVertexCircle)
                 drawLine(center.x, center.y, xEndVertex, yEndVertex, paintLineAxis)
 
                 // region draw titles
-                var xTitle = xEndVertex - paintTitleText.rectOfText(type.label).centerX()
-                val titleRectSize = paintTitleText.rectOfText(type.label)
+                var xTitle = xEndVertex - paintAxisTitleText.rectOfText(type.label).centerX()
+                val titleRectSize = paintAxisTitleText.rectOfText(type.label)
                 val yTitle = when {
                     20 + yEndVertex > center.y -> yEndVertex + titleRectSize.height() + 20
                     else -> yEndVertex - titleRectSize.height()
@@ -220,7 +235,7 @@ class RadarGraphView: View {
                 if (xTitle <= 0) {
                     xTitle = 10.0
                 }
-                drawText(type.label, xTitle, yTitle, paintTitleText)
+                drawText(type.label, xTitle, yTitle, paintAxisTitleText)
                 // end region Draw titles
 
                 // Draw paths between each value of a list of vertex

@@ -7,5 +7,7 @@
         <attr name="axisPointRadiusPercent" format="float"/>
         <attr name="axisLineStrokePercent" format="float"/>
         <attr name="noDataFoundText" format="string"/>
+        <attr name="axisTitleTextColor" format="color"/>
+        <attr name="axisLineColor" format="color"/>
     </declare-styleable>
 </resources>
