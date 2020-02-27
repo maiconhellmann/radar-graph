@@ -34,13 +34,17 @@ class RadarGraphView: View {
                 R.styleable.RadarGraphView, 0, 0)
 
             //Oval color
-            val circleColor = typedArray.getColor(
-                R.styleable.RadarGraphView_circleColor, context.parseColor(R.color.defaultOval))
+            val circlesColor = typedArray.getColor(
+                R.styleable.RadarGraphView_circlesColor, context.parseColor(R.color.defaultOval))
+
+            initPaintCircles(circlesColor)
 
             // Oval amount
-            backgroundOvalAmount = typedArray.getInt(R.styleable.RadarGraphView_OvalAmount, backgroundOvalAmount)
+            circlesAmount = typedArray.getInt(R.styleable.RadarGraphView_circlesAmount, circlesAmount)
 
-            initPaintOval(circleColor)
+            //Circle margin percent
+            circlesMarginPercent = typedArray.getFloat(R.styleable.RadarGraphView_circlesMarginPercent, circlesMarginPercent)
+
 
             typedArray.recycle()
         }
@@ -59,10 +63,10 @@ class RadarGraphView: View {
     // It is a square defined by the minimum values between measuredWith and measuredHeight
     private var minGraphSize: Int = 0
 
-    private var backgroundOvalAmount: Int = 3
+    private var circlesAmount: Int = 3
 
     // Margin between the background circles and the outer view TODO accept it as a parameter
-    private val circleMarginPercent = 30f
+    private var circlesMarginPercent = 30f
 
     // Percentage of minGraphSize to define the size of the background circles TODO accept it as a parameter
     private val ovalSizePercent = 1f
@@ -87,10 +91,10 @@ class RadarGraphView: View {
         }
     }
 
-    private lateinit var paintOval: Paint
+    private lateinit var paintCircles: Paint
 
-    private fun initPaintOval(paintColor: Int) {
-        paintOval = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    private fun initPaintCircles(paintColor: Int) {
+        paintCircles = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = paintColor
             style = Paint.Style.STROKE
             strokeWidth = 4f
@@ -181,7 +185,7 @@ class RadarGraphView: View {
 
             // drawn background circles
             backgroundOvalList.forEach {
-                drawCircle(center.x, center.y, it, paintOval)
+                drawCircle(center.x, center.y, it, paintCircles)
             }
 
             vertexTypes.forEachIndexed { vertexTypeIndex, type ->
@@ -262,12 +266,12 @@ class RadarGraphView: View {
     private fun calculateMinAxisStrokeWidth() = max(minGraphSize.percent(axisLineStrokePercent), 2)
 
     private fun calculateOvalList(): List<Float> {
-        val circlesPadding = minGraphSize.center().percent(circleMarginPercent)
+        val circlesPadding = minGraphSize.center().percent(circlesMarginPercent)
         val maxSize = minGraphSize.center().toFloat() - circlesPadding.toFloat()
 
         val list = mutableListOf<Float>()
-        for (i in 1..backgroundOvalAmount) {
-            val size = maxSize / backgroundOvalAmount * i
+        for (i in 1..circlesAmount) {
+            val size = maxSize / circlesAmount * i
             list.add(size)
         }
         return list.toList()

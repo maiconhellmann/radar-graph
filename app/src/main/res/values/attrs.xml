@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="RadarGraphView">
-        <attr name="circleColor" format="color"/>
-        <attr name="OvalAmount" format="integer"/>
+        <attr name="circlesColor" format="color"/>
+        <attr name="circlesAmount" format="integer"/>
+        <attr name="circlesMarginPercent" format="float"/>
     </declare-styleable>
 </resources>
