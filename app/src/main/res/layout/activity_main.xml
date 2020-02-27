@@ -19,6 +19,7 @@
         app:circlesColor="@color/defaultOval"
         app:circlesMarginPercent="30"
         app:axisPointRadiusPercent="1"
-        app:axisLineStrokePercent=".3"/>
+        app:axisLineStrokePercent=".3"
+        app:noDataFoundText="@string/default_no_data_found"/>
 
 </android.support.constraint.ConstraintLayout>

@@ -6,5 +6,6 @@
         <attr name="circlesMarginPercent" format="float"/>
         <attr name="axisPointRadiusPercent" format="float"/>
         <attr name="axisLineStrokePercent" format="float"/>
+        <attr name="noDataFoundText" format="string"/>
     </declare-styleable>
 </resources>

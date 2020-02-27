@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Radar Graph</string>
+    <string name="default_no_data_found">No data found</string>
 </resources>

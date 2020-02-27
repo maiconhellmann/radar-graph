@@ -1,5 +1,6 @@
 package com.epolly.radargraph
 
+import DataList
 import android.annotation.TargetApi
 import android.content.Context
 import android.graphics.*
@@ -17,7 +18,7 @@ class RadarGraphView: View {
     constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
     ) : super(context, attrs, defStyleAttr) {
-        init(attrs)
+        initAttrs(attrs)
     }
 
     @TargetApi(LOLLIPOP)
@@ -25,39 +26,12 @@ class RadarGraphView: View {
         context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int
     ) : super(
         context, attrs, defStyleAttr, defStyleRes) {
-        init(attrs)
-    }
-
-    fun init(attrs: AttributeSet?) {
-        attrs?.let {
-            val typedArray = context.obtainStyledAttributes(it,
-                R.styleable.RadarGraphView, 0, 0)
-
-            //Oval color
-            val circlesColor = typedArray.getColor(
-                R.styleable.RadarGraphView_circlesColor, context.parseColor(R.color.defaultOval))
-
-            initPaintCircles(circlesColor)
-
-            // Oval amount
-            circlesAmount = typedArray.getInt(R.styleable.RadarGraphView_circlesAmount, circlesAmount)
-
-            //Circle margin percent
-            circlesMarginPercent = typedArray.getFloat(R.styleable.RadarGraphView_circlesMarginPercent, circlesMarginPercent)
-
-            // size of the axis point (oval at the end of the axis)
-            axisPointRadiusPercent = typedArray.getFloat(R.styleable.RadarGraphView_axisPointRadiusPercent, axisPointRadiusPercent)
-
-            // Line stroke for the axis
-            axisLineStrokePercent = typedArray.getFloat(R.styleable.RadarGraphView_axisLineStrokePercent, axisLineStrokePercent)
-
-            typedArray.recycle()
-        }
+        initAttrs(attrs)
     }
 
     //Data model containing the data used to populate the graph(user input)
-    //var dataModel = DataList<String>(emptyList())
-    var dataModel = DummyData.createDataList()
+    var dataModel = DataList<String>(emptyList())
+    //var dataModel = DummyData.createDataList()
 
     // Center of the graph(minGraphSize / 2)
     private var center = PointF()
@@ -84,16 +58,9 @@ class RadarGraphView: View {
 
     private val pathDataList = dataModel.dataList.map { mutableListOf<PointF>() }
 
-    init {
-        // create a path for each vertex TODO what does it really do?
-        dataModel.dataList.forEachIndexed { i, dataModel ->
-            dataModel.vertexList.forEachIndexed { index, _ ->
-                pathDataList[i].add(index, PointF(0f, 0f))
-            }
-        }
-    }
-
     private lateinit var paintCircles: Paint
+
+    private lateinit var noDataFoundText: CharSequence
 
     private fun initPaintCircles(paintColor: Int) {
         paintCircles = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -145,6 +112,46 @@ class RadarGraphView: View {
         isAntiAlias = true
     }
 
+    init {
+        // create a path for each vertex TODO what does it really do?
+        dataModel.dataList.forEachIndexed { i, dataModel ->
+            dataModel.vertexList.forEachIndexed { index, _ ->
+                pathDataList[i].add(index, PointF(0f, 0f))
+            }
+        }
+    }
+
+    private fun initAttrs(attrs: AttributeSet?) {
+        attrs?.let {
+            val typedArray = context.obtainStyledAttributes(it,
+                R.styleable.RadarGraphView, 0, 0)
+
+            //Oval color
+            val circlesColor = typedArray.getColor(
+                R.styleable.RadarGraphView_circlesColor, context.parseColor(R.color.defaultOval))
+
+            initPaintCircles(circlesColor)
+
+            // Oval amount
+            circlesAmount = typedArray.getInt(R.styleable.RadarGraphView_circlesAmount, circlesAmount)
+
+            //Circle margin percent
+            circlesMarginPercent = typedArray.getFloat(R.styleable.RadarGraphView_circlesMarginPercent, circlesMarginPercent)
+
+            // size of the axis point (oval at the end of the axis)
+            axisPointRadiusPercent = typedArray.getFloat(R.styleable.RadarGraphView_axisPointRadiusPercent, axisPointRadiusPercent)
+
+            // Line stroke for the axis
+            axisLineStrokePercent = typedArray.getFloat(R.styleable.RadarGraphView_axisLineStrokePercent, axisLineStrokePercent)
+
+            // Text displayed when there is no data
+
+            noDataFoundText = typedArray.getText(R.styleable.RadarGraphView_noDataFoundText)
+
+            typedArray.recycle()
+        }
+    }
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         Log.d("RadarGraphView", "widthMeasureSpec")
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
@@ -169,9 +176,8 @@ class RadarGraphView: View {
 
             // If the list of data is empty
             if (dataModel.dataList.isEmpty()) {
-                val text = "No data found" // TODO should be dynamic
-                val rect = paintTitleText.rectOfText(text) // TODO paint should be dynamic
-                drawText(text, center.x - rect.centerX(), center.y - rect.centerY(), paintTitleText)
+                val rect = paintTitleText.rectOfText(noDataFoundText)
+                drawText(noDataFoundText.toString(), center.x - rect.centerX(), center.y - rect.centerY(), paintTitleText)
                 return
             }
 
@@ -333,9 +339,9 @@ fun Canvas.drawRect(left: Number, top: Number, right: Number, bottom: Number, pa
     return drawRect(left.toFloat(), top.toFloat(), right.toFloat(), bottom.toFloat(), paint)
 }
 
-fun Paint.rectOfText(text: String): Rect {
+fun Paint.rectOfText(text: CharSequence): Rect {
     val rect = Rect()
-    getTextBounds(text, 0, text.length, rect)
+    getTextBounds(text.toString(), 0, text.length, rect)
 
     return rect
 }
