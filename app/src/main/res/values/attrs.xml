@@ -9,5 +9,6 @@
         <attr name="noDataFoundText" format="string"/>
         <attr name="axisTitleTextColor" format="color"/>
         <attr name="axisLineColor" format="color"/>
+        <attr name="axisCircleColor" format="color"/>
     </declare-styleable>
 </resources>

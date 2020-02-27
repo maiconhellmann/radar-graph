@@ -65,6 +65,8 @@ class RadarGraphView: View {
 
     private lateinit var paintLineAxis: Paint
 
+    private lateinit var paintAxisCircle: Paint
+
     private fun initPaintCircles(paintColor: Int) {
         paintCircles = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = paintColor
@@ -111,11 +113,12 @@ class RadarGraphView: View {
         }
     }
 
-    // TODO make it dynamic
-    private val paintVertexCircle = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.rgb(180, 220, 180)
-        style = Paint.Style.FILL
-        isAntiAlias = true
+    private fun initPaintAxisCircle(paintColor: Int) {
+        paintAxisCircle = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = paintColor
+            style = Paint.Style.FILL
+            isAntiAlias = true
+        }
     }
 
     init {
@@ -161,6 +164,11 @@ class RadarGraphView: View {
             // Color of the axis
             initPaintLineAxis(
                 typedArray.getColor(R.styleable.RadarGraphView_axisLineColor, context.parseColor(R.color.defaultLineAxis))
+            )
+
+            // Color of the circle of the axis
+            initPaintAxisCircle(
+                typedArray.getColor(R.styleable.RadarGraphView_axisCircleColor, context.parseColor(R.color.defaultCircleAxis))
             )
 
             typedArray.recycle()
@@ -218,7 +226,7 @@ class RadarGraphView: View {
                 val yEndVertex = polarToY(theta, radius) + center.y
 
                 drawCircle(
-                    xEndVertex, yEndVertex, ovalRadius, paintVertexCircle)
+                    xEndVertex, yEndVertex, ovalRadius, paintAxisCircle)
                 drawLine(center.x, center.y, xEndVertex, yEndVertex, paintLineAxis)
 
                 // region draw titles

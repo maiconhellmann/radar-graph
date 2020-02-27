@@ -22,6 +22,7 @@
         app:axisLineStrokePercent=".3"
         app:noDataFoundText="@string/default_no_data_found"
         app:axisLineColor="@color/defaultLineAxis"
-        app:axisTitleTextColor="@color/grey"/>
+        app:axisTitleTextColor="@color/grey"
+        app:axisCircleColor="@color/defaultCircleAxis"/>
 
 </android.support.constraint.ConstraintLayout>
