@@ -4,5 +4,6 @@
         <attr name="circlesColor" format="color"/>
         <attr name="circlesAmount" format="integer"/>
         <attr name="circlesMarginPercent" format="float"/>
+        <attr name="axisPointRadiusPercent" format="float"/>
     </declare-styleable>
 </resources>

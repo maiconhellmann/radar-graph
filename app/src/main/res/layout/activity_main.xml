@@ -17,6 +17,7 @@
         android:background="#FFFFFF"
         app:circlesAmount="4"
         app:circlesColor="@color/defaultOval"
-        app:circlesMarginPercent="30"/>
+        app:circlesMarginPercent="30"
+        app:axisPointRadiusPercent="1"/>
 
 </android.support.constraint.ConstraintLayout>

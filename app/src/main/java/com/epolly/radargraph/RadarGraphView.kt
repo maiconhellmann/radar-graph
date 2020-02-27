@@ -45,6 +45,8 @@ class RadarGraphView: View {
             //Circle margin percent
             circlesMarginPercent = typedArray.getFloat(R.styleable.RadarGraphView_circlesMarginPercent, circlesMarginPercent)
 
+            // size of the axis point (oval at the end of the axis)
+            axisPointRadiusPercent = typedArray.getFloat(R.styleable.RadarGraphView_axisPointRadiusPercent, axisPointRadiusPercent)
 
             typedArray.recycle()
         }
@@ -67,8 +69,7 @@ class RadarGraphView: View {
 
     private var circlesMarginPercent = 30f
 
-    // Percentage of minGraphSize to define the size of the axes point TODO accept it as a parameter
-    private val axisPointRadiusPercent = 1f
+    private var axisPointRadiusPercent = 1f
 
     // Percentage of the minGraphSize to define the stroke of the axis lines TODO accept it as a parameter
     private val axisLineStrokePercent = .3f
