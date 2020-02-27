@@ -65,11 +65,10 @@ class RadarGraphView: View {
 
     private var circlesAmount: Int = 3
 
-    // Margin between the background circles and the outer view TODO accept it as a parameter
     private var circlesMarginPercent = 30f
 
-    // Percentage of minGraphSize to define the size of the background circles TODO accept it as a parameter
-    private val ovalSizePercent = 1f
+    // Percentage of minGraphSize to define the size of the axes point TODO accept it as a parameter
+    private val axisPointRadiusPercent = 1f
 
     // Percentage of the minGraphSize to define the stroke of the axis lines TODO accept it as a parameter
     private val axisLineStrokePercent = .3f
@@ -181,7 +180,7 @@ class RadarGraphView: View {
             val angle = 360 / vertexTypes.size
 
             val radius = calculateAxisSize()
-            val ovalRadius = minGraphSize.percent(ovalSizePercent)
+            val ovalRadius = minGraphSize.percent(axisPointRadiusPercent)
 
             // drawn background circles
             backgroundOvalList.forEach {
