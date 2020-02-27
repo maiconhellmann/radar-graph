@@ -33,8 +33,12 @@ class RadarGraphView: View {
             val typedArray = context.obtainStyledAttributes(it,
                 R.styleable.RadarGraphView, 0, 0)
 
+            //Oval color
             val circleColor = typedArray.getColor(
                 R.styleable.RadarGraphView_circleColor, context.parseColor(R.color.defaultOval))
+
+            // Oval amount
+            backgroundOvalAmount = typedArray.getInt(R.styleable.RadarGraphView_OvalAmount, backgroundOvalAmount)
 
             initPaintOval(circleColor)
 
@@ -55,8 +59,7 @@ class RadarGraphView: View {
     // It is a square defined by the minimum values between measuredWith and measuredHeight
     private var minGraphSize: Int = 0
 
-    // Amount of background circles TODO accept it as a parameter
-    private val backgroundOvalAmount = 3
+    private var backgroundOvalAmount: Int = 3
 
     // Margin between the background circles and the outer view TODO accept it as a parameter
     private val circleMarginPercent = 30f

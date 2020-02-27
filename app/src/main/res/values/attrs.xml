@@ -2,5 +2,6 @@
 <resources>
     <declare-styleable name="RadarGraphView">
         <attr name="circleColor" format="color"/>
+        <attr name="OvalAmount" format="integer"/>
     </declare-styleable>
 </resources>
