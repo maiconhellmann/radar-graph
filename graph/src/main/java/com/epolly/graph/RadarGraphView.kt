@@ -31,7 +31,7 @@ class RadarGraphView: View {
     private var pathDataList = emptyList<MutableList<PointF>>()
 
     //Data model containing the data used to populate the graph(user input)
-    var dataModel = DataList<String>(emptyList())
+    var dataModel = DataList<String>(dataList = emptyList())
     set(value) {
         field = value
         init()

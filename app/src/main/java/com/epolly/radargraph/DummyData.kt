@@ -24,7 +24,8 @@ class DummyData {
             ) //
 
             return DataList(
-                listOf(
+                title = "Dummy 1",
+                dataList = listOf(
                     //first
                     Data(
                         1, "First", mutableListOf( //
@@ -56,7 +57,8 @@ class DummyData {
             ) //
 
             return DataList(
-                listOf(
+                title = "Dummy 2",
+                dataList = listOf(
                     //first
                     Data(
                         1, "First", mutableListOf( //

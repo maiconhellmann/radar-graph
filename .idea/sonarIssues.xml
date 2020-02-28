@@ -53,6 +53,11 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/graph/src/main/java/com/epolly/graph/model/Model.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/graph/src/main/res/values/colors.xml">
           <value>
             <set />

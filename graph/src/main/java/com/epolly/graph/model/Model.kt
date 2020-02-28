@@ -5,8 +5,17 @@
  * If a vertex doesn't have a value for a specific and distict VertexType this wrapper will add a null value for it.
  */
 class DataList<T>(
+    val title: String? = null,
     dataList: List<Data<T>>,
+
+    /**
+     * Converts a vertex model to a String. Used to display a label
+     */
     private val asString: ((Vertex<T>) -> String)? = null,
+
+    /**
+     * Converts a vertex model to a number to be able to calc the position on the graph
+     */
     private val asNumber: ((Vertex<T>) -> Number)? = null
 ) {
     private val typeList: MutableSet<VertexType> = mutableSetOf()
@@ -22,7 +31,9 @@ class DataList<T>(
                 data.vertexList.firstOrNull { it.type == dataType } ?: data.vertexList.add(
                     Vertex(
                         dataType,
-                        null))
+                        null
+                    )
+                )
 
                 data.vertexList.forEach {
                     it.asNumber = asNumber
