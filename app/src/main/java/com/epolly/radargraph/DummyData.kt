@@ -28,17 +28,23 @@ class DummyData {
                 dataList = listOf(
                     //first
                     Data(
-                        1, "First", mutableListOf( //
-                            Vertex(typeList[0], "100"), //
-                            Vertex(typeList[1], "200"), //
-                            Vertex(typeList[2], "300"), //
+                        id = 1,
+                        name = "First",
+                        color = R.color.colorAccent,
+                        vertexList = mutableListOf( //
+                            Vertex(typeList[0], "100"),
+                            Vertex(typeList[1], "200"),
+                            Vertex(typeList[2], "300"),
                             Vertex(typeList[3], "320")
-                        ) //
+                        )
                     ),
                     // second
                     Data(
-                        2, "Second", mutableListOf( //
-                            Vertex(typeList[0], "150"), //
+                        id = 2,
+                        name = "Second",
+                        color = R.color.colorPrimary,
+                        vertexList = mutableListOf(
+                            Vertex(typeList[0], "150"),
                             Vertex(typeList[1], "220")
                         )
                     )
@@ -61,28 +67,36 @@ class DummyData {
                 dataList = listOf(
                     //first
                     Data(
-                        1, "First", mutableListOf( //
-                            Vertex(typeList[0], "250"), //
-                            Vertex(typeList[1], "90"), //
-                            Vertex(typeList[2], "120"), //
+                        id = 1, name = "First",
+                        color = R.color.colorPrimaryDark,
+                        vertexList = mutableListOf( //
+                            Vertex(typeList[0], "250"),
+                            Vertex(typeList[1], "90"),
+                            Vertex(typeList[2], "120"),
                             Vertex(typeList[3], "150")
                         ) //
                     ),
                     // second
                     Data(
-                        2, "Second", mutableListOf( //
-                            Vertex(typeList[0], "150"), //
-                            Vertex(typeList[1], "220"), //
-                            Vertex(typeList[2], "220"), //
+                        id = 2,
+                        name = "Second",
+                        color = R.color.defaultLineAxis,
+                        vertexList = mutableListOf(
+                            Vertex(typeList[0], "150"),
+                            Vertex(typeList[1], "220"),
+                            Vertex(typeList[2], "220"),
                             Vertex(typeList[3], "500")
                         )
                     ),
                     // third
                     Data(
-                        3, "Third", mutableListOf( //
-                            Vertex(typeList[0], "50"), //
-                            Vertex(typeList[1], "45"), //
-                            Vertex(typeList[2], "90"), //
+                        id = 3,
+                        name = "Third",
+                        color = R.color.defaultLineAxis,
+                        vertexList = mutableListOf(
+                            Vertex(typeList[0], "50"),
+                            Vertex(typeList[1], "45"),
+                            Vertex(typeList[2], "90"),
                             Vertex(typeList[3], "12")
                         )
                     )

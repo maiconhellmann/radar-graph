@@ -1,3 +1,5 @@
+import androidx.annotation.ColorRes
+
 /**
  * Wraps a list of Data(list of vertex).
  * Each element of the list is a different graph. The last one will be drawn on top of the others.
@@ -5,6 +7,9 @@
  * If a vertex doesn't have a value for a specific and distict VertexType this wrapper will add a null value for it.
  */
 class DataList<T>(
+    /**
+     * Graph's title to be displayed
+     */
     val title: String? = null,
     dataList: List<Data<T>>,
 
@@ -55,6 +60,7 @@ class DataList<T>(
  */
 class Data<T>(
     val id: Int, val name: String = "",
+    @ColorRes val color: Int,
     val vertexList: MutableList<Vertex<T>>
 ) {
 
