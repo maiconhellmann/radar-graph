@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="defaultOval">#203232FF</color>
+    <color name="grey">#999</color>
+    <color name="defaultLineAxis">#b4dcb4</color>
+    <color name="defaultCircleAxis">#b4dbb4</color>
+</resources>

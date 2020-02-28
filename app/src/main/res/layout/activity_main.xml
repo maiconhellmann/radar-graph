@@ -1,28 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <com.epolly.radargraph.RadarGraphView
+    <com.epolly.graph.RadarGraphView
         android:id="@+id/graph"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         android:background="#FFFFFF"
+        app:axisCircleColor="@color/defaultCircleAxis"
+        app:axisLineColor="@color/defaultLineAxis"
+        app:axisLineStrokePercent=".3"
+        app:axisPointRadiusPercent="1"
+        app:axisTitleTextColor="@color/grey"
         app:circlesAmount="4"
         app:circlesColor="@color/defaultOval"
         app:circlesMarginPercent="30"
-        app:axisPointRadiusPercent="1"
-        app:axisLineStrokePercent=".3"
-        app:noDataFoundText="@string/default_no_data_found"
-        app:axisLineColor="@color/defaultLineAxis"
-        app:axisTitleTextColor="@color/grey"
-        app:axisCircleColor="@color/defaultCircleAxis"/>
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:noDataFoundText="@string/default_no_data_found" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

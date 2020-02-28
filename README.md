@@ -6,7 +6,6 @@ TODO list:
 * Display the data model label name
 * Display the data model legends
 * Display graph name if set
-* Separate the component from the demo app
 * Release it as a library
 
 ## Usage  

@@ -1,4 +1,4 @@
-package com.epolly.radargraph
+package com.epolly.graph
 
 import android.annotation.TargetApi
 import android.content.Context
@@ -9,7 +9,6 @@ import androidx.core.content.ContextCompat
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
-import com.epolly.radargraph.model.DummyData
 
 class RadarGraphView: View {
 
@@ -30,7 +29,7 @@ class RadarGraphView: View {
 
     //Data model containing the data used to populate the graph(user input)
     //var dataModel = DataList<String>(emptyList())
-    var dataModel = DummyData.createDataList()
+    var dataModel = com.epolly.graph.model.DummyData.createDataList()
 
     // Center of the graph(minGraphSize / 2)
     private var center = PointF()
