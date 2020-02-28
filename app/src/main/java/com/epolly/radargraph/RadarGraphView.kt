@@ -4,8 +4,8 @@ import android.annotation.TargetApi
 import android.content.Context
 import android.graphics.*
 import android.os.Build.VERSION_CODES.LOLLIPOP
-import android.support.annotation.ColorRes
-import android.support.v4.content.ContextCompat
+import androidx.annotation.ColorRes
+import androidx.core.content.ContextCompat
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
