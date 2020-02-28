@@ -1,14 +1,14 @@
 # radar-graph
-This graph is not completely ready to use.
+This graph is not completely fully implemented.
 
-TODO list:  
-* Default color pallet for at least 5 axis
+Backlog:
 * Display the data model label name
 * Display the data model legends
 * Display graph name if set
 * Release it as a library
 
-## Usage  
+## Usage
+### Layout:
 ```
 <com.epolly.radargraph.RadarGraphView
         android:id="@+id/graph"
@@ -27,6 +27,11 @@ TODO list:
         app:axisLineColor="@color/defaultLineAxis"
         app:axisTitleTextColor="@color/grey"
         app:axisCircleColor="@color/defaultCircleAxis"/>
+```
+
+### Code
+```
+graph.dataModel= emptyList<DataList<String>>()
 ```
 
 ### Demo

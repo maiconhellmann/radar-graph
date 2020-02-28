@@ -246,7 +246,7 @@ class RadarGraphView: View {
                 drawText(type.label, xTitle, yTitle, paintAxisTitleText)
                 // end region Draw titles
 
-                // Draw paths between each value of a list of vertex
+                // Calculate the points of each vertex. It could be calc onMeasure but for now it is working just fine.
                 dataModel.dataList.forEachIndexed { i, data ->
                     val vertexIndex = data.vertexList.indexOfFirst { it.type == type }
 

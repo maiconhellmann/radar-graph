@@ -8,7 +8,8 @@ import androidx.annotation.ColorRes
  */
 class DataList<T>(
     /**
-     * Graph's title to be displayed
+     * Graph's title to be displayed.
+     * TODO: Not implemented
      */
     val title: String? = null,
     dataList: List<Data<T>>,
