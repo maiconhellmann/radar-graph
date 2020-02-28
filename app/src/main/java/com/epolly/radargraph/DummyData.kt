@@ -30,7 +30,7 @@ class DummyData {
                     Data(
                         id = 1,
                         name = "First",
-                        color = R.color.colorAccent,
+                        color = R.color.graph_first,
                         vertexList = mutableListOf( //
                             Vertex(typeList[0], "100"),
                             Vertex(typeList[1], "200"),
@@ -42,7 +42,7 @@ class DummyData {
                     Data(
                         id = 2,
                         name = "Second",
-                        color = R.color.colorPrimary,
+                        color = R.color.graph_second,
                         vertexList = mutableListOf(
                             Vertex(typeList[0], "150"),
                             Vertex(typeList[1], "220")
@@ -68,31 +68,33 @@ class DummyData {
                     //first
                     Data(
                         id = 1, name = "First",
-                        color = R.color.colorPrimaryDark,
+                        color = R.color.graph_third,
                         vertexList = mutableListOf( //
                             Vertex(typeList[0], "250"),
                             Vertex(typeList[1], "90"),
                             Vertex(typeList[2], "120"),
-                            Vertex(typeList[3], "150")
+                            Vertex(typeList[3], "150"),
+                            Vertex(typeList[4], "150")
                         ) //
                     ),
                     // second
                     Data(
                         id = 2,
                         name = "Second",
-                        color = R.color.defaultLineAxis,
+                        color = R.color.graph_fourth,
                         vertexList = mutableListOf(
                             Vertex(typeList[0], "150"),
                             Vertex(typeList[1], "220"),
                             Vertex(typeList[2], "220"),
-                            Vertex(typeList[3], "500")
+                            Vertex(typeList[3], "500"),
+                            Vertex(typeList[4], "20")
                         )
                     ),
                     // third
                     Data(
                         id = 3,
                         name = "Third",
-                        color = R.color.defaultLineAxis,
+                        color = R.color.graph_first,
                         vertexList = mutableListOf(
                             Vertex(typeList[0], "50"),
                             Vertex(typeList[1], "45"),

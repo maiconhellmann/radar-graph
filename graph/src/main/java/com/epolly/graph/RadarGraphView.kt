@@ -5,11 +5,11 @@ import android.annotation.TargetApi
 import android.content.Context
 import android.graphics.*
 import android.os.Build.VERSION_CODES.LOLLIPOP
-import androidx.annotation.ColorRes
-import androidx.core.content.ContextCompat
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
+import androidx.annotation.ColorRes
+import androidx.core.content.ContextCompat
 
 class RadarGraphView: View {
 
@@ -27,6 +27,8 @@ class RadarGraphView: View {
         context, attrs, defStyleAttr, defStyleRes) {
         initAttrs(attrs)
     }
+
+    private var paintDataList: List<Paint> = emptyList()
 
     private var pathDataList = emptyList<MutableList<PointF>>()
 
@@ -61,7 +63,6 @@ class RadarGraphView: View {
     // Path used to draw the lines between axis
     val path = Path()
 
-
     private lateinit var paintCircles: Paint
 
     private lateinit var noDataFoundText: CharSequence
@@ -88,25 +89,6 @@ class RadarGraphView: View {
             isAntiAlias = true
             textSize = 32f
         }
-    }
-
-
-    // TODO make it dynamic via dataModel
-    private val paintValueDiamond1 = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.argb(150, 50, 200, 200)
-        style = Paint.Style.FILL_AND_STROKE
-        strokeWidth = 4f
-        isAntiAlias = true
-        isDither = true
-    }
-
-    // TODO make it dynamic via dataModel
-    private val paintValueDiamond2 = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.argb(150, 50, 255, 50)
-        style = Paint.Style.FILL_AND_STROKE
-        strokeWidth = 4f
-        isAntiAlias = true
-        isDither = true
     }
 
     private fun initPaintLineAxis(paintColor: Int) {
@@ -180,6 +162,17 @@ class RadarGraphView: View {
                 pathDataList[i].add(index, PointF(0f, 0f))
             }
         }
+
+        //Internal fun
+        fun createRadarPaint(@ColorRes resColor: Int) = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = context.parseColor(resColor)
+            style = Paint.Style.FILL_AND_STROKE
+            strokeWidth = 4f
+            isAntiAlias = true
+            isDither = true
+        }
+
+        paintDataList = dataModel.dataList.map { createRadarPaint(it.color) }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -188,7 +181,7 @@ class RadarGraphView: View {
 
         runCalculations()
     }
-    
+
     private fun runCalculations() {
         Log.d("RadarGraphView", "-runCalculations")
         minGraphSize = calcMaxSquareSize()
@@ -283,7 +276,7 @@ class RadarGraphView: View {
                 }
                 path.close()
 
-                drawPath(path, if (i == 0) paintValueDiamond1 else paintValueDiamond2)
+                drawPath(path, paintDataList[i])
             }
         }
     }
