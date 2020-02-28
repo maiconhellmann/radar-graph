@@ -10,8 +10,17 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val dummyData1 = DummyData.createDummyData1()
+        val dummyData2 = DummyData.createDummyData2()
+
+        graph.dataModel = dummyData1
+
         graph.setOnClickListener {
-            graph.invalidate()
+            if (graph.dataModel.dataList.size == dummyData1.dataList.size) {
+                graph.dataModel = dummyData2
+            } else {
+                graph.dataModel = dummyData1
+            }
         }
     }
 }

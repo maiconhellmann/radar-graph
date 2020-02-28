@@ -1,5 +1,6 @@
 package com.epolly.graph
 
+import DataList
 import android.annotation.TargetApi
 import android.content.Context
 import android.graphics.*
@@ -27,9 +28,15 @@ class RadarGraphView: View {
         initAttrs(attrs)
     }
 
+    private var pathDataList = emptyList<MutableList<PointF>>()
+
     //Data model containing the data used to populate the graph(user input)
-    //var dataModel = DataList<String>(emptyList())
-    var dataModel = com.epolly.graph.model.DummyData.createDataList()
+    var dataModel = DataList<String>(emptyList())
+    set(value) {
+        field = value
+        init()
+        invalidate()
+    }
 
     // Center of the graph(minGraphSize / 2)
     private var center = PointF()
@@ -54,7 +61,6 @@ class RadarGraphView: View {
     // Path used to draw the lines between axis
     val path = Path()
 
-    private val pathDataList = dataModel.dataList.map { mutableListOf<PointF>() }
 
     private lateinit var paintCircles: Paint
 
@@ -120,15 +126,6 @@ class RadarGraphView: View {
         }
     }
 
-    init {
-        // create a path for each vertex TODO what does it really do?
-        dataModel.dataList.forEachIndexed { i, dataModel ->
-            dataModel.vertexList.forEachIndexed { index, _ ->
-                pathDataList[i].add(index, PointF(0f, 0f))
-            }
-        }
-    }
-
     private fun initAttrs(attrs: AttributeSet?) {
         attrs?.let {
             val typedArray = context.obtainStyledAttributes(it,
@@ -171,6 +168,17 @@ class RadarGraphView: View {
             )
 
             typedArray.recycle()
+        }
+    }
+
+    private fun init() {
+        pathDataList = dataModel.dataList.map { mutableListOf<PointF>() }
+
+        // create a path for each vertex
+        dataModel.dataList.forEachIndexed { i, dataModel ->
+            dataModel.vertexList.forEachIndexed { index, _ ->
+                pathDataList[i].add(index, PointF(0f, 0f))
+            }
         }
     }
 
