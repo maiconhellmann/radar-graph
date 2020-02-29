@@ -34,10 +34,11 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
     }
     // endregion
 
+    var isAnimationEnabled: Boolean = false
+
     private var paintDataList: List<Paint> = emptyList()
 
     private var pathDataList = emptyList<MutableList<PointF>>()
-    private var pathDataListAnim = emptyList<MutableList<PointF>>()
 
     //Data model containing the data used to populate the graph(user input)
     var dataModel = DataList<String>(dataList = emptyList())
@@ -45,7 +46,12 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
         field = value
         init()
         invalidate()
-        calcPathList()
+
+        if (isAnimationEnabled) {
+            startAnimating()
+        } else{
+            calcPathList()
+        }
     }
 
     // Center of the graph(minGraphSize / 2)
@@ -160,6 +166,8 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
                 typedArray.getColor(R.styleable.RadarGraphView_axisCircleColor, context.parseColor(R.color.defaultCircleAxis))
             )
 
+            isAnimationEnabled = typedArray.getBoolean(R.styleable.RadarGraphView_isAnimationEnabled, true)
+
             typedArray.recycle()
         }
     }
@@ -167,13 +175,11 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
 
     private fun init() {
         pathDataList = dataModel.dataList.map { mutableListOf<PointF>() }
-        pathDataListAnim = dataModel.dataList.map { mutableListOf<PointF>() }
 
         // create a path for each vertex
         dataModel.dataList.forEachIndexed { i, dataModel ->
             dataModel.vertexList.forEachIndexed { index, _ ->
                 pathDataList[i].add(index, PointF(0f, 0f))
-                pathDataListAnim[i].add(index, PointF(0f, 0f))
             }
         }
 
@@ -259,7 +265,7 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
             }
 
             // drawn paths
-            pathDataListAnim.forEachIndexed { i, it ->
+            pathDataList.forEachIndexed { i, it ->
                 path.reset()
                 it.forEachIndexed { index, point ->
                     if (index == 0) {
@@ -287,10 +293,10 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
                 val vertexIndex = data.vertexList.indexOfFirst { it.type == type }
 
                 if (vertexTypeIndex != -1) {
-                    val vertexList = data.vertexList[vertexIndex]
+                    val vertex = data.vertexList[vertexIndex]
                     val vertexPoint = pathDataList[i][vertexIndex]
 
-                    val value = vertexList.asNumber()
+                    val value = vertex.asNumber()
                     val percent = value.getPercentFrom(getMaxVertexValue())
                     val drawableRadius = radius.minusPercent(20f)
                     val valueRadius = drawableRadius - drawableRadius.minusPercent(percent)
@@ -345,12 +351,22 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
     private fun max(number1: Number, number2: Number) = number1.toDouble().coerceAtLeast(number2.toDouble())
 
     override fun onAnimationUpdate(animation: ValueAnimator?) {
+        val angle = calcAngle()
+        val radius = calculateAxisSize()
+
         animation?.let {
-            pathDataList.forEachIndexed { outerIndex, list ->
-                list.forEachIndexed { index, point ->
-                    pathDataListAnim[outerIndex][index] = PointF(
-                        point.x + (animation.animatedValue as Int),
-                        point.y + (animation.animatedValue as Int)
+            dataModel.dataList.forEachIndexed { outerIndex, list ->
+                list.vertexList.forEachIndexed { index, vertex ->
+                    val theta = degreesToRadians(angle * index)
+
+                    val value = vertex.asNumber()
+                    val percent = value.getPercentFrom(getMaxVertexValue())
+                    val drawableRadius = radius.minusPercent(20f)
+                    val valueRadius = (drawableRadius - drawableRadius.minusPercent(percent)).minusPercent(animation.animatedValue.toFloat())
+
+                    pathDataList[outerIndex][index] = PointF(
+                        polarToX(theta, valueRadius).toFloat() + center.x,
+                        polarToY(theta, valueRadius).toFloat() + center.y
                     )
                     invalidate()
                 }
@@ -360,11 +376,15 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
 
     private var mAnimator: ValueAnimator? = null
     fun startAnimating() {
-        mAnimator = ValueAnimator.ofInt(1, 100)
+        mAnimator = ValueAnimator.ofInt(100, 1)
         mAnimator?.duration = 1000
         mAnimator?.addUpdateListener(this)
         mAnimator?.start()
     }
+}
+
+private fun Any.toFloat(): Float {
+    return toString().toFloatOrNull() ?: 0f
 }
 
 private operator fun Number.minus(number: Number): Number = this.toDouble() - number.toDouble()

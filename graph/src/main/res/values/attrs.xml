@@ -10,5 +10,6 @@
         <attr name="axisTitleTextColor" format="color"/>
         <attr name="axisLineColor" format="color"/>
         <attr name="axisCircleColor" format="color"/>
+        <attr name="isAnimationEnabled" format="boolean"/>
     </declare-styleable>
 </resources>
