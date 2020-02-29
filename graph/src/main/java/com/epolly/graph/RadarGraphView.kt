@@ -40,6 +40,11 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
 
     private var paintDataList: List<Paint> = emptyList()
 
+    /**
+     * List with 2 dimensions:
+     * 1. first one is created for each DataModel.
+     * 2. Second one is created for each vertex. It contains a Point which is used to drawn on the screen.
+     */
     private var pathDataList = emptyList<MutableList<PointF>>()
 
     //Data model containing the data used to populate the graph(user input)
