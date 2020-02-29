@@ -1,6 +1,7 @@
 package com.epolly.graph
 
 import DataList
+import android.animation.TimeInterpolator
 import android.animation.ValueAnimator
 import android.annotation.TargetApi
 import android.content.Context
@@ -11,6 +12,7 @@ import android.util.Log
 import android.view.View
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
+import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -376,10 +378,20 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
 
     private var mAnimator: ValueAnimator? = null
     fun startAnimating() {
-        mAnimator = ValueAnimator.ofInt(100, 1)
-        mAnimator?.duration = 1000
-        mAnimator?.addUpdateListener(this)
-        mAnimator?.start()
+        mAnimator = ValueAnimator.ofInt(100, 1).apply {
+            duration = 500
+            interpolator = CustomTimeInterpolator(1, .5)
+            addUpdateListener(this@RadarGraphView)
+            start()
+        }
+    }
+
+    /**
+     * Custom Interpolator
+     */
+    inner class CustomTimeInterpolator(private val bounces: Int, private val energy: Double) : TimeInterpolator {
+        override fun getInterpolation(x: Float): Float = (1.0 + (-abs(cos(x * 10 * bounces / Math.PI)) * getCurveAdjustment(x))).toFloat()
+        private fun getCurveAdjustment(x: Float) : Double = -(2 * (1 - x) * x * energy + x * x) + 1
     }
 }
 
