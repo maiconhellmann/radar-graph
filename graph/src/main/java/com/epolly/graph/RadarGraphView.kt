@@ -212,7 +212,6 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
         backgroundOvalList = calculateOvalList()
         paintLineAxis.apply { strokeWidth = calculateMinAxisStrokeWidth().toFloat() }
         paintAxisTitleText.apply { textSize = calculateTextTitleSizes() }
-        calcPathList()
     }
 
     override fun onDraw(pCanvas: Canvas?) {
