@@ -24,7 +24,7 @@ class DataList<T>(
      */
     private val asNumber: ((Vertex<T>) -> Number)? = null
 ) {
-    private val typeList: MutableSet<VertexType> = mutableSetOf()
+    val typeList: MutableSet<VertexType> = mutableSetOf()
     val dataList: List<Data<T>>
 
     init {

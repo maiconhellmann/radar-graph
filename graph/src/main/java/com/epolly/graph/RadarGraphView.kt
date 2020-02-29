@@ -1,6 +1,7 @@
 package com.epolly.graph
 
 import DataList
+import android.animation.ValueAnimator
 import android.annotation.TargetApi
 import android.content.Context
 import android.graphics.*
@@ -10,8 +11,11 @@ import android.util.Log
 import android.view.View
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
+import kotlin.math.cos
+import kotlin.math.sin
 
-class RadarGraphView: View {
+
+class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
 
     @JvmOverloads
     constructor(
@@ -31,6 +35,7 @@ class RadarGraphView: View {
     private var paintDataList: List<Paint> = emptyList()
 
     private var pathDataList = emptyList<MutableList<PointF>>()
+    private var pathDataListAnim = emptyList<MutableList<PointF>>()
 
     //Data model containing the data used to populate the graph(user input)
     var dataModel = DataList<String>(dataList = emptyList())
@@ -38,6 +43,7 @@ class RadarGraphView: View {
         field = value
         init()
         invalidate()
+        calcPathList()
     }
 
     // Center of the graph(minGraphSize / 2)
@@ -155,11 +161,13 @@ class RadarGraphView: View {
 
     private fun init() {
         pathDataList = dataModel.dataList.map { mutableListOf<PointF>() }
+        pathDataListAnim = dataModel.dataList.map { mutableListOf<PointF>() }
 
         // create a path for each vertex
         dataModel.dataList.forEachIndexed { i, dataModel ->
             dataModel.vertexList.forEachIndexed { index, _ ->
                 pathDataList[i].add(index, PointF(0f, 0f))
+                pathDataListAnim[i].add(index, PointF(0f, 0f))
             }
         }
 
@@ -176,7 +184,7 @@ class RadarGraphView: View {
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        Log.d("RadarGraphView", "widthMeasureSpec")
+        Log.d("RadarGraphView", "onMeasure")
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
 
         runCalculations()
@@ -190,6 +198,7 @@ class RadarGraphView: View {
         backgroundOvalList = calculateOvalList()
         paintLineAxis.apply { strokeWidth = calculateMinAxisStrokeWidth().toFloat() }
         paintAxisTitleText.apply { textSize = calculateTextTitleSizes() }
+        calcPathList()
     }
 
     override fun onDraw(pCanvas: Canvas?) {
@@ -204,12 +213,8 @@ class RadarGraphView: View {
                 return
             }
 
-            // Get all vertexTypes distinctly
-            val vertexTypes =
-                dataModel.dataList.flatMap { dataModel -> dataModel.vertexList.map { it.type } }.distinct()
-
             // divide the circle by the numbers of vertex
-            val angle = 360 / vertexTypes.size
+            val angle = calcAngle()
 
             val radius = calculateAxisSize()
             val ovalRadius = minGraphSize.percent(axisPointRadiusPercent)
@@ -219,7 +224,7 @@ class RadarGraphView: View {
                 drawCircle(center.x, center.y, it, paintCircles)
             }
 
-            vertexTypes.forEachIndexed { vertexTypeIndex, type ->
+            dataModel.typeList.forEachIndexed { vertexTypeIndex, type ->
                 val theta = degreesToRadians(angle * vertexTypeIndex)
 
                 val xEndVertex = polarToX(theta, radius) + center.x
@@ -245,27 +250,10 @@ class RadarGraphView: View {
                 }
                 drawText(type.label, xTitle, yTitle, paintAxisTitleText)
                 // end region Draw titles
-
-                // Calculate the points of each vertex. It could be calc onMeasure but for now it is working just fine.
-                dataModel.dataList.forEachIndexed { i, data ->
-                    val vertexIndex = data.vertexList.indexOfFirst { it.type == type }
-
-                    if (vertexTypeIndex != -1) {
-                        val vertexList = data.vertexList[vertexIndex]
-                        val vertexPoint = pathDataList[i][vertexIndex]
-
-                        val value = vertexList.asNumber()
-                        val percent = value.getPercentFrom(getMaxVertexValue())
-                        val drawableRadius = radius.minusPercent(20f)
-                        val valueRadius = drawableRadius - drawableRadius.minusPercent(percent)
-
-                        vertexPoint.x = polarToX(theta, valueRadius).toFloat() + center.x
-                        vertexPoint.y = polarToY(theta, valueRadius).toFloat() + center.y
-                    }
-                }
             }
 
-            pathDataList.forEachIndexed { i, it ->
+            // drawn paths
+            pathDataListAnim.forEachIndexed { i, it ->
                 path.reset()
                 it.forEachIndexed { index, point ->
                     if (index == 0) {
@@ -281,6 +269,33 @@ class RadarGraphView: View {
         }
     }
 
+    private fun calcPathList() {
+        Log.d("RadarGraphView", "calcPathList")
+        val angle = calcAngle()
+
+        val radius = calculateAxisSize()
+
+        dataModel.typeList.forEachIndexed { vertexTypeIndex, type ->
+            val theta = degreesToRadians(angle * vertexTypeIndex)
+            dataModel.dataList.forEachIndexed { i, data ->
+                val vertexIndex = data.vertexList.indexOfFirst { it.type == type }
+
+                if (vertexTypeIndex != -1) {
+                    val vertexList = data.vertexList[vertexIndex]
+                    val vertexPoint = pathDataList[i][vertexIndex]
+
+                    val value = vertexList.asNumber()
+                    val percent = value.getPercentFrom(getMaxVertexValue())
+                    val drawableRadius = radius.minusPercent(20f)
+                    val valueRadius = drawableRadius - drawableRadius.minusPercent(percent)
+
+                    vertexPoint.x = polarToX(theta, valueRadius).toFloat() + center.x
+                    vertexPoint.y = polarToY(theta, valueRadius).toFloat() + center.y
+                }
+            }
+        }
+    }
+
     private fun getMaxVertexValue(): Number {
         var max = 0.0
         dataModel.dataList.forEach { vertexList ->
@@ -291,6 +306,8 @@ class RadarGraphView: View {
         }
         return max
     }
+
+    private fun calcAngle() = 360 / dataModel.typeList.size
 
     private fun calculateTextTitleSizes() = min(minGraphSize.percent(5).toDouble(), 35.0).toFloat()
 
@@ -315,11 +332,33 @@ class RadarGraphView: View {
 
     private fun calcMaxSquareSize() = measuredHeight.coerceAtMost(measuredWidth)
 
-    private fun polarToX(theta: Number, r: Number) = r.toDouble() * Math.cos(theta.toDouble())
-    private fun polarToY(theta: Number, r: Number) = r.toDouble() * Math.sin(theta.toDouble())
+    private fun polarToX(theta: Number, r: Number) = r.toDouble() * cos(theta.toDouble())
+    private fun polarToY(theta: Number, r: Number) = r.toDouble() * sin(theta.toDouble())
     private fun degreesToRadians(angleInDegrees: Int) = Math.PI * angleInDegrees / 180.0
 
-    fun max(number1: Number, number2: Number) = number1.toDouble().coerceAtLeast(number2.toDouble())
+    private fun max(number1: Number, number2: Number) = number1.toDouble().coerceAtLeast(number2.toDouble())
+
+    override fun onAnimationUpdate(animation: ValueAnimator?) {
+        animation?.let {
+            pathDataList.forEachIndexed { outerIndex, list ->
+                list.forEachIndexed { index, point ->
+                    pathDataListAnim[outerIndex][index] = PointF(
+                        point.x + (animation.animatedValue as Int),
+                        point.y + (animation.animatedValue as Int)
+                    )
+                    invalidate()
+                }
+            }
+        }
+    }
+
+    private var mAnimator: ValueAnimator? = null
+    fun startAnimating() {
+        mAnimator = ValueAnimator.ofInt(1, 100)
+        mAnimator?.duration = 1000
+        mAnimator?.addUpdateListener(this)
+        mAnimator?.start()
+    }
 }
 
 private operator fun Number.minus(number: Number): Number = this.toDouble() - number.toDouble()

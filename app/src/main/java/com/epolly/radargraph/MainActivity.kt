@@ -21,6 +21,7 @@ class MainActivity : AppCompatActivity() {
             } else {
                 graph.dataModel = dummyData1
             }
+            graph.startAnimating()
         }
     }
 }
