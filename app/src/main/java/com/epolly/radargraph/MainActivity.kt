@@ -13,6 +13,7 @@ class MainActivity : AppCompatActivity() {
         val dummyData1 = DummyData.createDummyData1()
         val dummyData2 = DummyData.createDummyData2()
 
+        graph.isAnimationEnabled = true
         graph.dataModel = dummyData1
 
         graph.setOnClickListener {
@@ -21,7 +22,6 @@ class MainActivity : AppCompatActivity() {
             } else {
                 graph.dataModel = dummyData1
             }
-            graph.startAnimating()
         }
     }
 }
