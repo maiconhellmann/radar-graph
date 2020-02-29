@@ -17,6 +17,7 @@ import kotlin.math.sin
 
 class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
 
+    //region Constructors
     @JvmOverloads
     constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
@@ -31,6 +32,7 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
         context, attrs, defStyleAttr, defStyleRes) {
         initAttrs(attrs)
     }
+    // endregion
 
     private var paintDataList: List<Paint> = emptyList()
 
@@ -79,6 +81,7 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
 
     private lateinit var paintAxisCircle: Paint
 
+    //region paint
     private fun initPaintCircles(paintColor: Int) {
         paintCircles = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = paintColor
@@ -113,7 +116,9 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
             isAntiAlias = true
         }
     }
+    // endregion
 
+    // region initAttrs
     private fun initAttrs(attrs: AttributeSet?) {
         attrs?.let {
             val typedArray = context.obtainStyledAttributes(it,
@@ -158,6 +163,7 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
             typedArray.recycle()
         }
     }
+    // endregion
 
     private fun init() {
         pathDataList = dataModel.dataList.map { mutableListOf<PointF>() }
