@@ -81,4 +81,4 @@ graph.dataModel= dataModel
 
 ### Demo
 <img src="https://github.com/maiconhellmann/radar-graph/blob/master/doc/ss.png" width="50%">
-<img src="https://github.com/maiconhellmann/radar-graph/blob/master/doc/sample.gif">
+<img src="https://github.com/maiconhellmann/radar-graph/blob/master/doc/sample.gif" width="50%">
