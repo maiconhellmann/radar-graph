@@ -106,7 +106,7 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
     private fun initPaintAxisTitleText(paintColor: Int) {
         paintAxisTitleText = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = paintColor
-            style = Paint.Style.STROKE
+            style = Paint.Style.FILL
             isAntiAlias = true
             textSize = 32f
         }
@@ -252,7 +252,7 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
                     xTitle = 10.0
                 }
                 drawText(type.label, xTitle, yTitle, paintAxisTitleText)
-                // end region Draw titles
+                // endregion Draw titles
             }
 
             // drawn paths
