@@ -1,7 +1,8 @@
 # radar-graph
-Image             |  GIF
-:-------------------------:|:-------------------------:
-![](https://github.com/maiconhellmann/radar-graph/blob/master/doc/ss.png)  |  ![](https://github.com/maiconhellmann/radar-graph/blob/master/doc/sample.gif)
+<p float="left">
+    <img src="https://github.com/maiconhellmann/radar-graph/blob/master/doc/ss.png" width="40%">
+    <img src="https://github.com/maiconhellmann/radar-graph/blob/master/doc/sample.gif" width="40%">
+</p>
 
 ## Usage
 
