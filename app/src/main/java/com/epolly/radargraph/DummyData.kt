@@ -17,10 +17,10 @@ class DummyData {
         fun createDummyData1(): DataList<String> {
 
             val typeList = listOf(
-                VertexType(1, "Type one"), //
-                VertexType(2, "Type two"), //
-                VertexType(3, "Type three"), //
-                VertexType(4, "Type four")
+                VertexType(1, "Vertex type one"), //
+                VertexType(2, "Vertex type two"), //
+                VertexType(3, "Vertex type three"), //
+                VertexType(4, "Vertex type four")
             ) //
 
             return DataList(
