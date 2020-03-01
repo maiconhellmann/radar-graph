@@ -1,13 +1,24 @@
 # radar-graph
-This graph is not completely fully implemented.
-
-Backlog:
-* Display the data model label name
-* Display the data model legends
-* Display graph name if set
-* Release it as a library
 
 ## Usage
+
+### Import
+```
+allprojects {
+		repositories {
+			...
+			maven { url 'https://jitpack.io' }
+		}
+	}
+```
+
+```
+dependencies {
+	        implementation 'com.github.maiconhellmann:radar-graph:0.1.0'
+	}
+
+```
+
 ### Layout:
 ```
 <com.epolly.radargraph.RadarGraphView
@@ -31,8 +42,43 @@ Backlog:
 
 ### Code
 ```
-graph.dataModel= emptyList<DataList<String>>()
+val typeList = listOf(
+                VertexType(1, "Vertex type one"), //
+                VertexType(2, "Vertex type two"), //
+                VertexType(3, "Vertex type three"), //
+                VertexType(4, "Vertex type four")) //
+
+val dataModel = DataList(
+    title = "Dummy 1",
+    dataList = listOf(
+        //first
+        Data(
+            id = 1,
+            name = "First",
+            color = R.color.graph_first,
+            vertexList = mutableListOf( //
+                Vertex(typeList[0], "100"),
+                Vertex(typeList[1], "200"),
+                Vertex(typeList[2], "300"),
+                Vertex(typeList[3], "320")
+            )
+        ),
+        // second
+        Data(
+            id = 2,
+            name = "Second",
+            color = R.color.graph_second,
+            vertexList = mutableListOf(
+                Vertex(typeList[0], "150"),
+                Vertex(typeList[1], "220")
+            )
+        )
+    )
+) //
+
+graph.dataModel= dataModel
 ```
 
 ### Demo
 <img src="https://github.com/maiconhellmann/radar-graph/blob/master/doc/ss.png" width="50%">
+<img src="https://github.com/maiconhellmann/radar-graph/blob/master/doc/sample.gif">
