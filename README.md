@@ -1,8 +1,7 @@
 # radar-graph
-<p float="left">
-    <img src="https://github.com/maiconhellmann/radar-graph/blob/master/doc/ss.png" width="200">
-    <img src="https://github.com/maiconhellmann/radar-graph/blob/master/doc/sample.gif" width="200">
-</p>
+<img src="https://github.com/maiconhellmann/radar-graph/blob/master/doc/ss.png" width="300">
+    <img src="https://github.com/maiconhellmann/radar-graph/blob/master/doc/sample.gif" width="350">
+
 
 ## Usage
 
