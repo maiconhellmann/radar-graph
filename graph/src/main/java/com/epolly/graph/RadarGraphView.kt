@@ -204,7 +204,7 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
 
         // drawn paths
         if (!isAnimationEnabled) {
-            calcPathList()
+            calcGraphPoints()
         } else {
             if (mAnimator?.isRunning != true) {
                 Log.d("RadarGraphView", "starting animation")
@@ -221,6 +221,7 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
     override fun onDraw(pCanvas: Canvas?) {
         super.onDraw(pCanvas)
         Log.d("RadarGraphView", "onDraw")
+
         pCanvas?.apply {
 
             // If the list of data is empty
@@ -237,8 +238,16 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
             val ovalRadius = minGraphSize.percent(axisPointRadiusPercent)
 
             // drawn background circles
-            backgroundOvalList.forEach {
-                drawCircle(center.x, center.y, it, paintCircles)
+            backgroundOvalList.forEachIndexed { index, ovalRadius ->
+                val theta = degreesToRadians(angle * index)
+                drawCircle(center.x, center.y, ovalRadius, paintCircles)
+
+                /* TODO drawn axis text
+                val textY = paintAxisTitleText.rectOfText("100")
+                val position = center.y - ovalRadius
+                val maxValue = getMaxVertexValue().toFloat()
+                drawText("100", center.x - textY.width()/2, position, paintAxisTitleText)
+                 */
             }
 
             dataModel.typeList.forEachIndexed { vertexTypeIndex, type ->
@@ -247,8 +256,7 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
                 val xEndVertex = polarToX(theta, radius) + center.x
                 val yEndVertex = polarToY(theta, radius) + center.y
 
-                drawCircle(
-                    xEndVertex, yEndVertex, ovalRadius, paintAxisCircle)
+                drawCircle(xEndVertex, yEndVertex, ovalRadius, paintAxisCircle)
                 drawLine(center.x, center.y, xEndVertex, yEndVertex, paintLineAxis)
 
                 // region draw titles
@@ -289,7 +297,7 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
         }
     }
 
-    private fun calcPathList(animatedValue: Float?= null) {
+    private fun calcGraphPoints(animatedValue: Float?= null) {
         Log.d("RadarGraphView", "calcPathList")
         val angle = calcAngle()
         val radius = calculateAxisSize()
@@ -299,13 +307,22 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
                 val theta = degreesToRadians(angle * index)
 
                 val value = item.vertex.asNumber()
-                val percent = value.getPercentFrom(getMaxVertexValue())
+
+                // How many percent the value is comparing to the max value
+                val valuePercentage = value.getPercentFrom(getMaxVertexValue())
+
+                // Area available to drawn our graph
                 val drawableRadius = radius.minusPercent(20f)
-                var valueRadius = (drawableRadius - drawableRadius.minusPercent(percent))
+
+                // Subtracts the percentageValue of the total area drawable
+                var valueRadius = (drawableRadius - drawableRadius.minusPercent(valuePercentage))
+
+                // If it is animated, subtract the status of the animation
                 animatedValue?.let {
                     valueRadius = valueRadius.minusPercent(it)
                 }
 
+                // Convert polar calc to X and Y
                 item.drawnPoint.x = polarToX(theta, valueRadius).toFloat() + center.x
                 item.drawnPoint.y = polarToY(theta, valueRadius).toFloat() + center.y
             }
@@ -359,7 +376,7 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
         val radius = calculateAxisSize()
 
         animation?.let {
-            calcPathList(it.animatedValue.toFloat())
+            calcGraphPoints(it.animatedValue.toFloat())
             invalidate()
         }
     }
