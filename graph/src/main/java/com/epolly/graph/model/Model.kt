@@ -6,26 +6,26 @@ import androidx.annotation.ColorRes
  * There is no limitation, it can contain 0 .. N elements.
  * If a vertex doesn't have a value for a specific and distict VertexType this wrapper will add a null value for it.
  */
-class DataList<T>(
+class DataList(
     /**
      * Graph's title to be displayed.
      * TODO: Not implemented
      */
     val title: String? = null,
-    dataList: List<Data<T>>,
+    dataList: List<Data>,
 
     /**
      * Converts a vertex model to a String. Used to display a label
      */
-    private val asString: ((Vertex<T>) -> String)? = null,
+    private val asString: ((Vertex) -> String)? = null,
 
     /**
      * Converts a vertex model to a number to be able to calc the position on the graph
      */
-    private val asNumber: ((Vertex<T>) -> Number)? = null
+    private val asNumber: ((Vertex) -> Number)? = null
 ) {
     val typeList: MutableSet<VertexType> = mutableSetOf()
-    val dataList: List<Data<T>>
+    val dataList: List<Data>
 
     init {
         typeList.addAll(dataList.flatMap { it.vertexList.map { dataValue -> dataValue.type } })
@@ -59,10 +59,10 @@ class DataList<T>(
 /**
  * Wraps a list of vertex values
  */
-class Data<T>(
+class Data(
     val id: Int, val name: String = "",
     @ColorRes val color: Int,
-    val vertexList: MutableList<Vertex<T>>
+    val vertexList: MutableList<Vertex>
 ) {
 
     override fun toString(): String {
@@ -73,11 +73,11 @@ class Data<T>(
 /**
  * Represents each value of a vertex. If the value is null it will be considered the minimum possible value(zero)
  */
-class Vertex<T>(
+class Vertex(
     val type: VertexType,
-    val value: T? = null,
-    var asString: ((Vertex<T>) -> String)? = null,
-    var asNumber: ((Vertex<T>) -> Number)? = null
+    val value: Any? = null,
+    var asString: ((Vertex) -> String)? = null,
+    var asNumber: ((Vertex) -> Number)? = null
 ) {
     override fun toString(): String {
         if (asString == null && value == null) return ""

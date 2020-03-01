@@ -14,7 +14,7 @@ import VertexType
  */
 class DummyData {
     companion object {
-        fun createDummyData1(): DataList<String> {
+        fun createDummyData1(): DataList {
 
             val typeList = listOf(
                 VertexType(1, "Vertex type one"), //
@@ -52,7 +52,7 @@ class DummyData {
             ) //
         }
 
-        fun createDummyData2(): DataList<String> {
+        fun createDummyData2(): DataList {
 
             val typeList = listOf(
                 VertexType(1, "Type A"), //

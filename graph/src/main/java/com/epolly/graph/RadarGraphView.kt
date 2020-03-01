@@ -2,7 +2,6 @@ package com.epolly.graph
 
 import DataList
 import Vertex
-import android.animation.TimeInterpolator
 import android.animation.ValueAnimator
 import android.annotation.TargetApi
 import android.content.Context
@@ -11,10 +10,8 @@ import android.os.Build.VERSION_CODES.LOLLIPOP
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
-import android.view.animation.BounceInterpolator
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
-import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -40,23 +37,25 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
 
     var isAnimationEnabled: Boolean = false
 
-    private var paintDataList: List<Paint> = emptyList()
-
     /**
      * List with 2 dimensions:
      * 1. first one is created for each DataModel.
      * 2. Second one is created for each vertex. It contains a Point which is used to drawn on the screen.
      */
-    private var pathDataList = emptyList<MutableList<PointF>>()
+    private lateinit var graphList: MutableList<VertexDrawn>
 
-    //Data model containing the data used to populate the graph(user input)
-    var dataModel = DataList<String>(dataList = emptyList())
+    var dataModel = DataList(dataList = emptyList())
     set(value) {
         field = value
-        pathDataList = dataModel.dataList.map { mutableListOf<PointF>() }
-        paintDataList = dataModel.dataList.map { createRadarPaint(it.color) } //TODO create a wrapper for it(together with the pathDataList)
+        graphList = dataModel.dataList.map { data ->
+            VertexDrawn(
+                data.vertexList.map { v -> VertexPoint(v, PointF()) },
+                createRadarPaint(data.color)
+            )
+        }.toMutableList()
 
         mAnimator?.cancel()
+        runCalculations()
         invalidate()
     }
 
@@ -81,7 +80,7 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
     private val axisMarginPercent = 15f
 
     // Path used to draw the lines between axis
-    val path = Path()
+    private val path = Path()
 
     private lateinit var paintCircles: Paint
 
@@ -94,6 +93,14 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
     private lateinit var paintAxisCircle: Paint
 
     //region paint
+    private fun createRadarPaint(@ColorRes resColor: Int) = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = context.parseColor(resColor)
+        style = Paint.Style.FILL_AND_STROKE
+        strokeWidth = 4f
+        isAntiAlias = true
+        isDither = true
+    }
+
     private fun initPaintCircles(paintColor: Int) {
         paintCircles = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = paintColor
@@ -179,14 +186,6 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
     }
     // endregion
 
-    fun createRadarPaint(@ColorRes resColor: Int) = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = context.parseColor(resColor)
-        style = Paint.Style.FILL_AND_STROKE
-        strokeWidth = 4f
-        isAntiAlias = true
-        isDither = true
-    }
-
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         Log.d("RadarGraphView", "onMeasure")
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
@@ -195,13 +194,28 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
     }
 
     private fun runCalculations() {
-        Log.d("RadarGraphView", "-runCalculations")
+        Log.d("RadarGraphView", "runCalculations")
         minGraphSize = calcMaxSquareSize()
         center.x = measuredWidth.center().toFloat()
         center.y = measuredHeight.center().toFloat()
         backgroundOvalList = calculateOvalList()
         paintLineAxis.apply { strokeWidth = calculateMinAxisStrokeWidth().toFloat() }
         paintAxisTitleText.apply { textSize = calculateTextTitleSizes() }
+
+        // drawn paths
+        if (!isAnimationEnabled) {
+            calcPathList()
+        } else {
+            if (mAnimator?.isRunning != true) {
+                Log.d("RadarGraphView", "starting animation")
+                mAnimator?.start()
+            }
+        }
+    }
+
+    override fun invalidate() {
+        super.invalidate()
+        Log.d("RadarGraphView", "invalidate")
     }
 
     override fun onDraw(pCanvas: Canvas?) {
@@ -255,28 +269,22 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
                 // endregion Draw titles
             }
 
-            // drawn paths
-            if (!isAnimationEnabled) {
-                calcPathList()
-            } else {
-                if (mAnimator?.isRunning != true) {
-                    mAnimator?.start()
-                }
-            }
-
-            Log.d("RadarGraphView", "Drawing pathDataList $pathDataList")
-            pathDataList.forEachIndexed { i, it ->
+            Log.d("RadarGraphView", "Drawing graphLis $graphList")
+            graphList.forEach { graph ->
                 path.reset()
-                it.forEachIndexed { index, point ->
+                graph.vertextDrawnList.forEachIndexed { index, vertexDrawn ->
+                    val x = vertexDrawn.drawnPoint.x
+                    val y = vertexDrawn.drawnPoint.y
+
                     if (index == 0) {
-                        path.moveTo(point.x, point.y)
-                    } else if (index < it.size) {
-                        path.lineTo(point.x, point.y)
+                        path.moveTo(x, y)
+                    } else if (index < graph.vertextDrawnList.size) {
+                        path.lineTo(x, y)
                     }
                 }
                 path.close()
 
-                drawPath(path, paintDataList[i])
+                drawPath(path, graph.paint)
             }
         }
     }
@@ -286,11 +294,11 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
         val angle = calcAngle()
         val radius = calculateAxisSize()
 
-        dataModel.dataList.forEachIndexed { outerIndex, list ->
-            list.vertexList.forEachIndexed { index, vertex ->
+        graphList.forEach { list ->
+            list.vertextDrawnList.forEachIndexed { index, item ->
                 val theta = degreesToRadians(angle * index)
 
-                val value = vertex.asNumber()
+                val value = item.vertex.asNumber()
                 val percent = value.getPercentFrom(getMaxVertexValue())
                 val drawableRadius = radius.minusPercent(20f)
                 var valueRadius = (drawableRadius - drawableRadius.minusPercent(percent))
@@ -298,10 +306,8 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
                     valueRadius = valueRadius.minusPercent(it)
                 }
 
-                pathDataList[outerIndex].add(index, PointF(
-                    polarToX(theta, valueRadius).toFloat() + center.x,
-                    polarToY(theta, valueRadius).toFloat() + center.y
-                ))
+                item.drawnPoint.x = polarToX(theta, valueRadius).toFloat() + center.x
+                item.drawnPoint.y = polarToY(theta, valueRadius).toFloat() + center.y
             }
         }
     }
@@ -366,9 +372,11 @@ class RadarGraphView: View, ValueAnimator.AnimatorUpdateListener {
     /**
      * Wraps a Vertex with drawn stuff
      */
-    inner class VertexDrawn<T>(val vertex: Vertex<T>, val drawnPoint: PointF)
+    inner class VertexPoint(val vertex: Vertex, val drawnPoint: PointF)
+    inner class VertexDrawn(val vertextDrawnList: List<VertexPoint>, val paint: Paint)
 }
 
+// region Extensions
 private fun Any.toFloat(): Float {
     return toString().toFloatOrNull() ?: 0f
 }
@@ -436,3 +444,4 @@ fun PointF.set(x: Number, y: Number) {
 fun Number.center(): Number = this.toDouble() / 2
 
 fun Context.parseColor(@ColorRes color: Int) = ContextCompat.getColor(this, color)
+// endregion
